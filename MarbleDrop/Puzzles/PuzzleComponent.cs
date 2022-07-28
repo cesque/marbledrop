@@ -49,6 +49,8 @@ namespace MarbleDrop.Puzzles
 
 		abstract public void Update(GameTime gameTime);
 
+		virtual public void UpdateEditor(GameTime gametime) { }
+
 		abstract public List<GridCharacter> GetCharacters();
 
 		abstract public void Input(ComponentPort port, Resource resource);

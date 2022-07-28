@@ -93,6 +93,7 @@ namespace MarbleDrop.Puzzles.Components
 			ImGuiNET.ImGui.End();
 		}
 
+
 		public static PuzzleComponent FromJSON(Puzzle puzzle, JsonElement element)
 		{
 			var component = new PlayerMarbleSpawnerComponent(puzzle, element.GetProperty("id").GetString());

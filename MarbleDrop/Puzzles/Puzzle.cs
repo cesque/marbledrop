@@ -67,6 +67,7 @@ namespace MarbleDrop.Puzzles
 			foreach (var component in Components)
 			{
 				component.Update(gameTime);
+				component.UpdateEditor(gameTime);
 			}
 		}
 

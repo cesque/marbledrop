@@ -85,10 +85,6 @@ namespace MarbleDrop.Puzzles
 		public override void DrawEditor(SpriteBatch spritebatch)
 		{
 			base.DrawEditor(spritebatch);
-			if (game.inputManager.IsLeftMouseButtonPressed() && !ImGui.GetIO().WantCaptureMouse)
-			{
-				IsEditorSelected = IsMouseOver();
-			}
 
 			var screenBounds = GetScreenBounds();
 
@@ -128,12 +124,12 @@ namespace MarbleDrop.Puzzles
 
 				foreach (var port in Inputs)
 				{
-					MonoGame.Primitives2D.DrawCircle(spritebatch, port.Position * gridSize + (circleVec / 2), 5, 8, Color.CornflowerBlue);
+					MonoGame.Primitives2D.DrawCircle(spritebatch, port.Position * gridSize + (circleVec / 2), 5, 8, Color.GreenYellow);
 				}
 
 				foreach (var port in Outputs)
 				{
-					MonoGame.Primitives2D.DrawCircle(spritebatch, port.Position * gridSize + (circleVec / 2), 5, 8, Color.GreenYellow);
+					MonoGame.Primitives2D.DrawCircle(spritebatch, port.Position * gridSize + (circleVec / 2), 5, 8, Color.CornflowerBlue);
 				}
 			}
 		}
@@ -221,7 +217,8 @@ namespace MarbleDrop.Puzzles
 					ImGui.TableNextColumn();
 					ImGui.Text("Position");
 					ImGui.TableNextColumn();
-					ImGui.Text($"X: {Position.X}, Y: {Position.Y}");
+					var portPosition = port.Position - Position;
+					ImGui.Text($"X: {portPosition.X}, Y: {portPosition.Y}");
 
 					ImGui.TableNextRow();
 					ImGui.TableNextColumn();
@@ -246,6 +243,16 @@ namespace MarbleDrop.Puzzles
 		public override void DrawEditorUI()
 		{
 			DrawEditorUI(true);
+		}
+
+		public override void UpdateEditor(GameTime gametime)
+		{
+			base.UpdateEditor(gametime);
+
+			if (game.inputManager.IsLeftMouseButtonPressed() && !ImGui.GetIO().WantCaptureMouse)
+			{
+				IsEditorSelected = IsMouseOver();
+			}
 		}
 
 		public static void PopulateFromJSON(PuzzleComponentWithPosition component, JsonElement element)
