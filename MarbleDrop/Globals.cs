@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace MarbleDrop
 {
-    static class Globals
-    {
-        public static Random RNG = new Random();
+	static class Globals
+	{
+		public static Random RNG = new Random();
 
-        public static Texture2D DebugTexture;
-    }
+		public static Texture2D DebugTexture;
+	}
 }

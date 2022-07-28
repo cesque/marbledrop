@@ -7,72 +7,89 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace MarbleDrop.Puzzles
 {
-    public abstract class PuzzleComponent
-    {
-        internal Puzzle puzzle;
-        internal Game1 game;
-        internal Grid grid;
-        internal Priority priority;
+	public abstract class PuzzleComponent
+	{
+		internal Puzzle puzzle;
+		internal Game1 game;
+		internal Grid grid;
+		internal Priority priority;
 
-        public List<ComponentPort> Inputs;
-        public List<ComponentPort> Outputs;
+		public List<ComponentPort> Inputs;
+		public List<ComponentPort> Outputs;
 
-        public string ID;
+		public List<ComponentPort> Ports
+		{
+			get { return Inputs.Concat(Outputs).ToList(); }
+		}
 
-        public PuzzleComponent(Puzzle puzzle, string id)
-        {
-            this.ID = id;
-            this.puzzle = puzzle;
-            this.game = puzzle.game;
-            this.grid = puzzle.grid;
+		public string ID;
 
-            this.priority = Priority.Component;
+		public bool IsEditorSelected = false;
 
-            this.Inputs = new List<ComponentPort>();
-            this.Outputs = new List<ComponentPort>();
-        }
+		public PuzzleComponent(Puzzle puzzle, string id)
+		{
+			this.ID = id;
+			this.puzzle = puzzle;
+			this.game = puzzle.game;
+			this.grid = puzzle.grid;
 
-        public PuzzleComponent(Puzzle puzzle) : this(puzzle, new Guid().ToString()) { }
+			this.priority = Priority.Component;
 
-        abstract public void Initialise();
+			this.Inputs = new List<ComponentPort>();
+			this.Outputs = new List<ComponentPort>();
+		}
 
-        abstract public void Update(GameTime gameTime);
+		public PuzzleComponent(Puzzle puzzle) : this(puzzle, new Guid().ToString()) { }
 
-        abstract public List<GridCharacter> GetCharacters();
+		abstract public void Initialise();
 
-        abstract public void Input(ComponentPort port, Resource resource);
+		abstract public void Update(GameTime gameTime);
 
-        public void Output(ComponentPort output, Resource resource)
-        {
-            if (output.Type != PortType.Output)
-            {
-                throw new Exception("can't output marble from input port!");
-            }
+		abstract public List<GridCharacter> GetCharacters();
 
-            output.Output(resource);
-        }
+		abstract public void Input(ComponentPort port, Resource resource);
 
-        public void Output(string portName, Resource resource)
-        {
-            var output = Outputs.Find(port => port.Name == portName);
+		public virtual void DrawEditor(SpriteBatch spritebatch) { }
 
-            if (output == null)
-            {
-                throw new Exception("couldn't find port with name " + portName);
-            }
 
-            Output(output, resource);
-        }
+		public virtual void DrawEditorUI() { }
 
-        public static void PopulateFromJSON(PuzzleComponent component, JsonElement element)
-        {
-            var id = element.GetProperty("id").GetString();
-            component.ID = id;
 
-            var data = element.GetProperty("data");
-        }
-    }
+		public void Output(ComponentPort output, Resource resource)
+		{
+			if (output.Type != PortType.OUTPUT)
+			{
+				throw new Exception("can't output marble from input port!");
+			}
+
+			output.Output(resource);
+		}
+
+		public void Output(string portName, Resource resource)
+		{
+			var output = Outputs.Find(port => port.Name == portName);
+
+			if (output == null)
+			{
+				throw new Exception("couldn't find port with name " + portName);
+			}
+
+			Output(output, resource);
+		}
+
+		abstract public bool IsMouseOver();
+
+		public static void PopulateFromJSON(PuzzleComponent component, JsonElement element)
+		{
+			var id = element.GetProperty("id").GetString();
+			component.ID = id;
+
+			var data = element.GetProperty("data");
+		}
+
+	}
 }

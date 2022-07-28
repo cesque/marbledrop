@@ -8,10 +8,11 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace MarbleDrop.Puzzles.Components
 {
-    class Wire : PuzzleComponent
+	class Wire : PuzzleComponent
 	{
 		public float Speed;
 		public List<WireSegment> Segments;
@@ -47,7 +48,7 @@ namespace MarbleDrop.Puzzles.Components
 			{ (left, down), 170 },
 			{ (left, left), 148 },
 		};
-		
+
 		public Wire(Puzzle puzzle, string id) : base(puzzle, id)
 		{
 			Speed = 15f;
@@ -59,13 +60,13 @@ namespace MarbleDrop.Puzzles.Components
 
 		public override void Initialise()
 		{
-			if(ResourceType == ResourceType.MARBLE)
-            {
+			if (ResourceType == ResourceType.MARBLE)
+			{
 				foregroundColor = grid.Palette.Get("grey");
 				backgroundColor = grid.Palette.Get("black");
-            } 
-			else if(ResourceType == ResourceType.SPARK)
-            {
+			}
+			else if (ResourceType == ResourceType.SPARK)
+			{
 				foregroundColor = grid.Palette.Get("darkgrey");
 				backgroundColor = grid.Palette.Get("black");
 			}
@@ -79,7 +80,7 @@ namespace MarbleDrop.Puzzles.Components
 
 			var resourceTypeName = ResourceType.ToString().ToLower();
 
-			var newPort = new ComponentPort(this, PortType.Input, ResourceType, fromPort.Position, resourceTypeName + "/input");
+			var newPort = new ComponentPort(this, PortType.INPUT, ResourceType, fromPort.Position, resourceTypeName + "/input");
 			newPort.Connect(fromPort);
 
 			Inputs.Add(newPort);
@@ -94,7 +95,7 @@ namespace MarbleDrop.Puzzles.Components
 
 			var resourceTypeName = ResourceType.ToString().ToLower();
 
-			Outputs.Add(new ComponentPort(this, PortType.Output, ResourceType, to, resourceTypeName + "/output"));
+			Outputs.Add(new ComponentPort(this, PortType.OUTPUT, ResourceType, to, resourceTypeName + "/output"));
 		}
 
 		public void ConnectTo(ComponentPort toPort)
@@ -106,7 +107,7 @@ namespace MarbleDrop.Puzzles.Components
 
 			var resourceTypeName = ResourceType.ToString().ToLower();
 
-			var newPort = new ComponentPort(this, PortType.Output, ResourceType, toPort.Position, resourceTypeName + "/output");
+			var newPort = new ComponentPort(this, PortType.OUTPUT, ResourceType, toPort.Position, resourceTypeName + "/output");
 			newPort.Connect(toPort);
 
 			Outputs.Add(newPort);
@@ -121,9 +122,10 @@ namespace MarbleDrop.Puzzles.Components
 				characters.AddRange(segment.GetCharacters());
 			}
 
-			if(Segments.Count > 1)
+			if (Segments.Count > 1)
 			{
-				for (var i = 0; i < Segments.Count - 1; i++) {
+				for (var i = 0; i < Segments.Count - 1; i++)
+				{
 					var thisSegment = Segments[i];
 					var nextSegment = Segments[i + 1];
 
@@ -155,13 +157,13 @@ namespace MarbleDrop.Puzzles.Components
 
 		public override void Update(GameTime gameTime)
 		{
-			for(var i = 0; i<Segments.Count; i++)
+			for (var i = 0; i < Segments.Count; i++)
 			{
 				Segments[i].Update(gameTime);
 
 				foreach (var resource in Segments[i].OutputQueue)
 				{
-					if(i + 1 < Segments.Count)
+					if (i + 1 < Segments.Count)
 					{
 						Segments[i + 1].Input(resource);
 					}
@@ -173,6 +175,11 @@ namespace MarbleDrop.Puzzles.Components
 			}
 		}
 
+		public override bool IsMouseOver() => false;
+
+		public override void DrawEditor(SpriteBatch spritebatch) { }
+		public override void DrawEditorUI() { }
+
 		public static PuzzleComponent FromJSON(Puzzle puzzle, JsonElement element)
 		{
 			var component = new Wire(puzzle, element.GetProperty("id").GetString());
@@ -183,11 +190,11 @@ namespace MarbleDrop.Puzzles.Components
 			var data = element.GetProperty("data");
 
 			var hasResourceTypeDefinition = data.TryGetProperty("resourceType", out var resourceTypeJSON);
-			if(hasResourceTypeDefinition)
-            {
+			if (hasResourceTypeDefinition)
+			{
 				var resourceType = resourceTypeJSON.GetString();
-				switch(resourceType)
-                {
+				switch (resourceType)
+				{
 					case "marble":
 						component.ResourceType = ResourceType.MARBLE;
 						break;
@@ -196,18 +203,18 @@ namespace MarbleDrop.Puzzles.Components
 						break;
 					default:
 						throw new InvalidEnumArgumentException("unrecognised resource type on wire definition: " + resourceType);
-                }
-            }
+				}
+			}
 
 			var pointsJSON = data.GetProperty("points").EnumerateArray();
 			var points = new List<Vector2>();
 
-			for(var i = 0; i<pointsJSON.Count() - 1; i++)
+			for (var i = 0; i < pointsJSON.Count() - 1; i++)
 			{
 				var point1 = pointsJSON.ElementAt(i);
 				var p1x = point1.GetProperty("x").GetInt32();
 				var p1y = point1.GetProperty("y").GetInt32();
-				
+
 				var point2 = pointsJSON.ElementAt(i + 1);
 				var p2x = point2.GetProperty("x").GetInt32();
 				var p2y = point2.GetProperty("y").GetInt32();
@@ -222,7 +229,7 @@ namespace MarbleDrop.Puzzles.Components
 				component.Segments.Add(segment);
 			}
 
-			if(component.Segments.Count == 0)
+			if (component.Segments.Count == 0)
 			{
 				throw new Exception("can't deserialize a wire with 0 segments!");
 			}
@@ -231,11 +238,11 @@ namespace MarbleDrop.Puzzles.Components
 
 			component.Inputs = new List<ComponentPort>
 			{
-				new ComponentPort(component, PortType.Input, component.ResourceType, component.Segments.First().Start, resourceTypeName + "/input")
+				new ComponentPort(component, PortType.INPUT, component.ResourceType, component.Segments.First().Start, resourceTypeName + "/input")
 			};
 			component.Outputs = new List<ComponentPort>
 			{
-				new ComponentPort(component, PortType.Output, component.ResourceType, component.Segments.Last().End, resourceTypeName + "/output")
+				new ComponentPort(component, PortType.OUTPUT, component.ResourceType, component.Segments.Last().End, resourceTypeName + "/output")
 			};
 
 

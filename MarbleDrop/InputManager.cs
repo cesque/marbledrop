@@ -9,29 +9,47 @@ using MonoGame;
 
 namespace MarbleDrop
 {
-    class InputManager
-    {
-        Game1 game;
-        KeyboardState previousState;
-        KeyboardState currentState;
+	class InputManager
+	{
+		Game1 game;
+		KeyboardState previousKeyboardState;
+		KeyboardState currentKeyboardState;
+		MouseState previousMouseState;
+		MouseState currentMouseState;
 
-        public InputManager(Game1 game)
-        {
-            this.game = game;
+		public InputManager(Game1 game)
+		{
+			this.game = game;
 
-            previousState = Keyboard.GetState();
-            currentState = Keyboard.GetState();
-        }
+			previousKeyboardState = Keyboard.GetState();
+			currentKeyboardState = Keyboard.GetState();
 
-        public void Update()
-        {
-            previousState = currentState;
-            currentState = Keyboard.GetState();
-        }
+			previousMouseState = Mouse.GetState(game.Window);
+			currentMouseState = Mouse.GetState(game.Window);
+		}
 
-        public bool IsKeyPressed(Keys key)
-        {
-            return previousState.IsKeyUp(key) && currentState.IsKeyDown(key);
-        }
-    }
+		public void Update()
+		{
+			previousKeyboardState = currentKeyboardState;
+			currentKeyboardState = Keyboard.GetState();
+
+			previousMouseState = currentMouseState;
+			currentMouseState = Mouse.GetState(game.Window);
+		}
+
+		public bool IsKeyPressed(Keys key)
+		{
+			return previousKeyboardState.IsKeyUp(key) && currentKeyboardState.IsKeyDown(key);
+		}
+
+		public MouseState GetMouse()
+		{
+			return currentMouseState;
+		}
+
+		public bool IsLeftMouseButtonPressed()
+		{
+			return previousMouseState.LeftButton == ButtonState.Released && currentMouseState.LeftButton == ButtonState.Pressed;
+		}
+	}
 }
