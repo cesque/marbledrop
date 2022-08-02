@@ -178,7 +178,7 @@ namespace MarbleDrop.Puzzles.Components
 		public override bool IsMouseOver() => false;
 
 		public override void DrawEditor(SpriteBatch spritebatch) { }
-		public override void DrawEditorUI() { }
+		public override void DrawEditorUI(PuzzleDisplay display) { }
 
 		public static PuzzleComponent FromJSON(Puzzle puzzle, JsonElement element)
 		{

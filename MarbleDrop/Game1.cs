@@ -20,16 +20,18 @@ namespace MarbleDrop
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
 		RenderTarget2D renderTarget;
-		internal float screenScale = 2f;
+		internal float screenScale = 1f;
 
 		ImGUIRenderer imguiRenderer;
+
+		Grid grid;
 
 		bool isFullScreen = false;
 
 		internal InputManager inputManager;
-		Grid grid;
 
 		Puzzle puzzle;
+		PuzzleDisplay puzzleDisplay;
 		float timer;
 
 		public Game1()
@@ -68,14 +70,15 @@ namespace MarbleDrop
 
 			// TODO: use this.Content to load your game content here
 
-			grid = new Grid(this);
-			var gridSize = grid.GetScreenSize();
+			grid = new Grid(this, 80, 40);
+			var gridSize = grid.GetScreenBounds();
+			screenScale = grid.GetMaxScreenScaleToFitOnScreen();
 
 			var displayWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
 			var displayHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
 
-			graphics.PreferredBackBufferWidth = (int)(gridSize.X * screenScale);
-			graphics.PreferredBackBufferHeight = (int)(gridSize.Y * screenScale);
+			graphics.PreferredBackBufferWidth = (int)(gridSize.Width * screenScale);
+			graphics.PreferredBackBufferHeight = (int)(gridSize.Height * screenScale);
 
 			if (isFullScreen)
 			{
@@ -92,7 +95,7 @@ namespace MarbleDrop
 
 			graphics.ApplyChanges();
 
-			renderTarget = new RenderTarget2D(GraphicsDevice, (int)gridSize.X, (int)gridSize.Y);
+			renderTarget = new RenderTarget2D(GraphicsDevice, (int)gridSize.Width, (int)gridSize.Height);
 
 
 			/* --- */
@@ -100,8 +103,16 @@ namespace MarbleDrop
 			var file = File.ReadAllText("./Content/level1.json");
 			var document = JsonDocument.Parse(file);
 
-			puzzle = Puzzle.FromJSON(this, grid, document.RootElement);
+			puzzle = Puzzle.FromJSON(this,  document.RootElement);
+			puzzleDisplay = new PuzzleDisplay(this, grid, new Rectangle(
+				2,
+				2,
+				(int)(grid.Width * 0.75f),
+				(int)(grid.Height - 4)
+			));
 
+
+			puzzleDisplay.Mount(puzzle);
 		}
 
 		/// <summary>
@@ -128,8 +139,7 @@ namespace MarbleDrop
 			timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
 			// TODO: Add your update logic here
-			grid.Update(gameTime);
-			puzzle.Update(gameTime);
+			puzzleDisplay.Update(gameTime);
 
 			base.Update(gameTime);
 		}
@@ -140,21 +150,21 @@ namespace MarbleDrop
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Draw(GameTime gameTime)
 		{
+			puzzleDisplay.DrawCharacters();
+
+			// handle drawing of non-grid things:
+
+			puzzleDisplay.DrawRenderTarget(spriteBatch);
+
 			GraphicsDevice.SetRenderTarget(renderTarget);
 			GraphicsDevice.Clear(Color.Black);
 
-
-			/* --- draw all stuff to the render target --- */
+			// * --- draw all stuff to the render target --- */
 			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);
-
-			// draw game components. we don't need to pass spriteBatch because
-			// these components just add their characters to the grid, which
-			// gets drawn after all of the components have finished.
-			puzzle.Draw();
-
+			//puzzle.Draw(spriteBatch);
 			grid.Draw(spriteBatch);
+			puzzleDisplay.Draw(spriteBatch);
 
-			//puzzle.DrawDebug(spriteBatch);
 			spriteBatch.End();
 
 			GraphicsDevice.SetRenderTarget(null);
@@ -162,7 +172,8 @@ namespace MarbleDrop
 			/* --- draw render target to screen --- */
 			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);
 			spriteBatch.Draw(renderTarget, new Rectangle(0, 0, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight), Color.White);
-			puzzle.DrawEditor(spriteBatch);
+			puzzleDisplay.DrawEditor(spriteBatch);
+
 			spriteBatch.End();
 
 			base.Draw(gameTime);
@@ -170,7 +181,7 @@ namespace MarbleDrop
 			imguiRenderer.BeginLayout(gameTime);
 			ImGuiNET.ImGui.SetMouseCursor(ImGuiNET.ImGuiMouseCursor.Arrow);
 			ImGuiNET.ImGui.GetIO().MouseDrawCursor = true;
-			puzzle.DrawEditorUI();
+			puzzleDisplay.DrawEditorUI();
 			imguiRenderer.EndLayout();
 		}
 	}

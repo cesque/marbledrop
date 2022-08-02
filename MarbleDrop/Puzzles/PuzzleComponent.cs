@@ -49,7 +49,13 @@ namespace MarbleDrop.Puzzles
 
 		abstract public void Update(GameTime gameTime);
 
-		virtual public void UpdateEditor(GameTime gametime) { }
+		virtual public void UpdateEditor(GameTime gametime)
+		{ 
+			if(IsEditorSelected && IsMouseOver() && game.inputManager.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Delete))
+			{
+				Delete();
+			}
+		}
 
 		abstract public List<GridCharacter> GetCharacters();
 
@@ -58,7 +64,7 @@ namespace MarbleDrop.Puzzles
 		public virtual void DrawEditor(SpriteBatch spritebatch) { }
 
 
-		public virtual void DrawEditorUI() { }
+		public virtual void DrawEditorUI(PuzzleDisplay display) { }
 
 
 		public void Output(ComponentPort output, Resource resource)
@@ -82,6 +88,17 @@ namespace MarbleDrop.Puzzles
 
 			Output(output, resource);
 		}
+		
+		public void Delete()
+		{
+			foreach(var port in Ports)
+			{
+				port.Disconnect();
+			}
+
+			puzzle.RemoveComponent(this);
+		}
+
 
 		abstract public bool IsMouseOver();
 

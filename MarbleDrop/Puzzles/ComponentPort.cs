@@ -55,7 +55,7 @@ namespace MarbleDrop.Puzzles
 				throw new Exception("couldn't connect two ports of different resource types!");
 			}
 
-			if (Position != other.Position)
+			if (GetGridPosition() != other.GetGridPosition())
 			{
 				Console.WriteLine("port positions don't match up between connections of " + Component.ID + " and  " + other.Component.ID + "!");
 				Console.WriteLine(Component.ID + ": " + Position);
@@ -64,6 +64,26 @@ namespace MarbleDrop.Puzzles
 
 			ConnectedPort = other;
 			other.ConnectedPort = this;
+		}
+
+		public void Disconnect()
+		{
+			if(ConnectedPort != null)
+			{
+				ConnectedPort.ConnectedPort = null;
+			}
+			ConnectedPort = null;
+		}
+
+		public Vector2 GetGridPosition()
+		{
+			if(Component is PuzzleComponentWithPosition)
+			{
+				var componentWithPosition = (PuzzleComponentWithPosition)Component;
+				return componentWithPosition.Position + Position;
+			}
+
+			return Position;
 		}
 	}
 }

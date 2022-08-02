@@ -60,11 +60,12 @@ namespace MarbleDrop.Puzzles
 
 		Rectangle GetScreenBounds()
 		{
+			var offset = (puzzle.display.ScreenBounds.Location.ToVector2() - puzzle.display.CameraPosition) * game.screenScale;
 			var bounds = GetBounds();
 
 			return new Rectangle(
-				(int)(bounds.X * grid.CharacterWidth * game.screenScale),
-				(int)(bounds.Y * grid.CharacterWidth * game.screenScale),
+				(int)((bounds.X * grid.CharacterWidth * game.screenScale) + offset.X),
+				(int)((bounds.Y * grid.CharacterWidth * game.screenScale) + offset.Y),
 				(int)(bounds.Width * grid.CharacterWidth * game.screenScale),
 				(int)(bounds.Height * grid.CharacterWidth * game.screenScale)
 			);
@@ -124,19 +125,19 @@ namespace MarbleDrop.Puzzles
 
 				foreach (var port in Inputs)
 				{
-					MonoGame.Primitives2D.DrawCircle(spritebatch, port.Position * gridSize + (circleVec / 2), 5, 8, Color.GreenYellow);
+					MonoGame.Primitives2D.DrawCircle(spritebatch, screenBounds.Location.ToVector2() + (port.Position * gridSize) + (circleVec / 2), 5, 8, Color.GreenYellow);
 				}
 
 				foreach (var port in Outputs)
 				{
-					MonoGame.Primitives2D.DrawCircle(spritebatch, port.Position * gridSize + (circleVec / 2), 5, 8, Color.CornflowerBlue);
+					MonoGame.Primitives2D.DrawCircle(spritebatch, screenBounds.Location.ToVector2() + (port.Position * gridSize) + (circleVec / 2), 5, 8, Color.CornflowerBlue);
 				}
 			}
 		}
 
-		public void DrawEditorUI(bool shouldCloseWindow)
+		public void DrawEditorUI(PuzzleDisplay display, bool shouldCloseWindow)
 		{
-			base.DrawEditorUI();
+			base.DrawEditorUI(display);
 			if (!IsEditorSelected) return;
 
 			var bounds = GetBounds();
@@ -240,10 +241,7 @@ namespace MarbleDrop.Puzzles
 			}
 		}
 
-		public override void DrawEditorUI()
-		{
-			DrawEditorUI(true);
-		}
+		public override void DrawEditorUI(PuzzleDisplay display) => DrawEditorUI(display, true);
 
 		public override void UpdateEditor(GameTime gametime)
 		{

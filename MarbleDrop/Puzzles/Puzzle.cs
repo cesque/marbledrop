@@ -16,62 +16,45 @@ namespace MarbleDrop.Puzzles
 	{
 		internal Game1 game;
 		internal Grid grid;
+		internal PuzzleDisplay display;
+
+		public int Width => grid.Width;
+		public int Height => grid.Height;
 
 		public List<PuzzleComponent> Components;
 		public string Name;
 
 		float debugTimer;
+		List<PuzzleComponent> componentsReadyForDeletion;
 
-		public Puzzle(Game1 game, Grid grid)
+		public Puzzle(Game1 game)
 		{
 			this.game = game;
-			this.grid = grid;
+			this.grid = new Grid(game, 80, 40);
 
 			Components = new List<PuzzleComponent>();
-
-			//var spawnerComponent = new PlayerMarbleSpawnerComponent(this);
-			//Components.Add(spawnerComponent);
-
-			//var switchComponent = new SwitchComponent(this);
-			//Components.Add(switchComponent);
-
-			//var bufferComponent = new BufferComponent(this);
-			//Components.Add(bufferComponent);
-
-			//var wire = new Wire(this);
-
-			//wire.ConnectFrom(spawnerComponent.Outputs.First(), new Vector2(20, 6));
-			//wire.Extend(new Vector2(20, 16));
-			//wire.ConnectTo(switchComponent.Inputs[0]);
-			//Components.Add(wire);
-
-			//var outputWire1 = new Wire(this);
-			//outputWire1.ConnectFrom(switchComponent.Outputs[0], new Vector2(24, 4));
-			//var outputWire2 = new Wire(this);
-			//outputWire2.ConnectFrom(switchComponent.Outputs[1], new Vector2(24, 28));
-			//outputWire2.ConnectTo(bufferComponent.Inputs[0]);
-
-			//var outputWire3 = new Wire(this);
-			//outputWire3.ConnectFrom(bufferComponent.Outputs[0], new Vector2(50, 28));
-
-
-			//Components.Add(outputWire1);
-			//Components.Add(outputWire2);
-			//Components.Add(outputWire3);
+			componentsReadyForDeletion = new List<PuzzleComponent>();
 		}
 
 		public void Update(GameTime gameTime)
 		{
 			debugTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
+			foreach (var component in componentsReadyForDeletion)
+			{
+				Components.Remove(component);
+			}
+
 			foreach (var component in Components)
 			{
 				component.Update(gameTime);
 				component.UpdateEditor(gameTime);
 			}
+
+			grid.Update(gameTime);
 		}
 
-		public void Draw()
+		public void DrawCharacters(SpriteBatch spriteBatch)
 		{
 			foreach (var component in Components)
 			{
@@ -81,6 +64,9 @@ namespace MarbleDrop.Puzzles
 					grid.TryAddCharacter(character);
 				}
 			}
+
+
+			grid.Draw(spriteBatch);
 		}
 
 		public void DrawEditor(SpriteBatch spriteBatch)
@@ -88,39 +74,6 @@ namespace MarbleDrop.Puzzles
 			foreach (var component in Components)
 			{
 				component.DrawEditor(spriteBatch);
-				//if(component.IsMouseOver())
-				//{
-
-				//    // debug ports
-				//    var ports = new List<ComponentPort>();
-				//    ports.AddRange(component.Inputs);
-				//    ports.AddRange(component.Outputs);
-
-
-				//    foreach (var port in ports)
-				//    {
-				//        var x = port.Position.X * grid.CharacterWidth * game.screenScale;
-				//        var y = port.Position.Y * grid.CharacterHeight * game.screenScale;
-				//        var width = grid.CharacterWidth * game.screenScale;
-				//        var height = grid.CharacterHeight * game.screenScale;
-
-				//        var color = port.Type == PortType.Input ? Color.HotPink : Color.GreenYellow;
-
-				//        if (port.Type == PortType.Input && (debugTimer % 1 > 0) && (debugTimer % 1 < 0.33f))
-				//        {
-				//            //spriteBatch.Draw(Globals.DebugTexture, new Rectangle((int)x, (int)y, grid.CharacterWidth, grid.CharacterHeight), color);
-				//            MonoGame.Primitives2D.DrawCircle(spriteBatch, new Vector2(x, y), width, 16, color);
-
-				//        }
-
-				//        if (port.Type == PortType.Output && (debugTimer % 1 > 0.33f) && (debugTimer % 1 < 0.66f))
-				//        {
-				//            MonoGame.Primitives2D.DrawCircle(spriteBatch, new Vector2(x, y), height, 16, color);
-
-				//        }
-
-				//    }
-				//}
 			}
 		}
 
@@ -128,27 +81,24 @@ namespace MarbleDrop.Puzzles
 		{
 			foreach (var component in Components)
 			{
-				component.DrawEditorUI();
+				component.DrawEditorUI(display);
 			}
 		}
 
-		public static Puzzle FromJSON(Game1 game, Grid grid, JsonElement element)
+		public void RemoveComponent(PuzzleComponent component)
 		{
-			var puzzle = new Puzzle(game, grid);
+			componentsReadyForDeletion.Add(component);
+		}
+
+		public static Puzzle FromJSON(Game1 game, JsonElement element)
+		{
+			var puzzle = new Puzzle(game);
 
 			puzzle.Name = element.GetProperty("name").GetString();
 
 			Console.WriteLine("loading: " + puzzle.Name);
 
 			var components = element.GetProperty("components").EnumerateArray();
-
-			//var componentTypes = new Dictionary<string, Type>
-			//{
-			//    { "buffer", typeof(BufferComponent) },
-			//    { "switch", typeof(SwitchComponent) },
-			//    { "playerspawner", typeof(PlayerMarbleSpawnerComponent) },
-			//    { "test", typeof(TestComponent) },
-			//};
 
 			foreach (var componentJSON in components)
 			{

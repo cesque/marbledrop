@@ -18,8 +18,7 @@ namespace MarbleDrop.Puzzles.Components
 		{
 			Position = new Vector2(4, 4);
 
-			Outputs.Add(new ComponentPort(this, PortType.OUTPUT, ResourceType.MARBLE, this.Position + new Vector2(4, 2), "marble/output"));
-
+			Outputs.Add(new ComponentPort(this, PortType.OUTPUT, ResourceType.MARBLE, new Vector2(4, 2), "marble/output"));
 		}
 
 		public PlayerMarbleSpawnerComponent(Puzzle puzzle) : this(puzzle, new Guid().ToString()) { }
@@ -83,9 +82,9 @@ namespace MarbleDrop.Puzzles.Components
 
 		}
 
-		public override void DrawEditorUI()
+		public override void DrawEditorUI(PuzzleDisplay display)
 		{
-			DrawEditorUI(false);
+			DrawEditorUI(display, false);
 			if (!IsEditorSelected) return;
 
 			ImGuiNET.ImGui.Text("Spawner");

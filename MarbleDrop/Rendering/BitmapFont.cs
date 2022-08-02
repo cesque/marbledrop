@@ -12,26 +12,27 @@ namespace MarbleDrop.Rendering
 	{
 		Game1 game;
 		string assetName;
-		int characterWidth;
-		int characterHeight;
 		Texture2D map;
+
+		public int CharacterWidth;
+		public int CharacterHeight;
 
 		public BitmapFont(Game1 game, string assetName, int characterWidth, int characterHeight)
 		{
 			this.game = game;
 			this.assetName = assetName;
-			this.characterWidth = characterWidth;
-			this.characterHeight = characterHeight;
+			CharacterWidth = characterWidth;
+			CharacterHeight = characterHeight;
 
 			map = game.Content.Load<Texture2D>(assetName);
 		}
 
 		public Rectangle GetCharacterBounds(int i)
 		{
-			var offset = i * characterWidth;
-			var y = (int)Math.Floor(offset / (float)map.Width) * characterWidth;
+			var offset = i * CharacterWidth;
+			var y = (int)Math.Floor(offset / (float)map.Width) * CharacterWidth;
 			var x = offset % map.Width;
-			return new Rectangle(x, y, characterWidth, characterHeight);
+			return new Rectangle(x, y, CharacterWidth, CharacterHeight);
 		}
 
 		public void DrawCharacter(SpriteBatch spriteBatch, Grid grid, int i, Vector2 position, Color foregroundColor, Color backgroundColor)
@@ -41,8 +42,8 @@ namespace MarbleDrop.Rendering
 
 			var rectangle = GetCharacterBounds(i);
 
-			spriteBatch.Draw(Globals.DebugTexture, new Rectangle(x * characterWidth, y * characterHeight, characterWidth, characterHeight), backgroundColor);
-			spriteBatch.Draw(map, new Rectangle(x * characterWidth, y * characterHeight, characterWidth, characterHeight), rectangle, foregroundColor);
+			spriteBatch.Draw(Globals.DebugTexture, new Rectangle(x * CharacterWidth, y * CharacterHeight, CharacterWidth, CharacterHeight), backgroundColor);
+			spriteBatch.Draw(map, new Rectangle(x * CharacterWidth, y * CharacterHeight, CharacterWidth, CharacterHeight), rectangle, foregroundColor);
 		}
 	}
 }

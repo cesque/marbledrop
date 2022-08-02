@@ -15,20 +15,20 @@ namespace MarbleDrop.Rendering
 		public int Width;
 		public int Height;
 
-		public int CharacterWidth = 8;
-		public int CharacterHeight = 8;
+		public int CharacterWidth => Font.CharacterWidth;
+		public int CharacterHeight => Font.CharacterHeight;
 
 		public BitmapFont Font;
 		public ColorPalette Palette;
 
 		public GridCharacter[,] Characters;
 
-		public Grid(Game1 game)
+		public Grid(Game1 game, int width, int height)
 		{
 			this.game = game;
 
-			Width = 80;
-			Height = 40;
+			Width = width;
+			Height = height;
 
 			Characters = new GridCharacter[Width, Height];
 
@@ -40,24 +40,37 @@ namespace MarbleDrop.Rendering
 				}
 			}
 
-			CharacterWidth = 8;
-			CharacterHeight = 8;
-
-			Font = new BitmapFont(game, "zxevolution", CharacterWidth, CharacterHeight);
+			Font = new BitmapFont(game, "zxevolution", 8, 8);
 			Palette = ColorPalette.Load("pico-8.txt");
 		}
 
-		public Vector2 GetScreenSize()
+		public Rectangle GetScreenBounds()
 		{
-			return new Vector2(
+			return new Rectangle(
+				0,
+				0,
 				CharacterWidth * Width,
 				CharacterHeight * Height
 			);
 		}
 
+		public float GetMaxScreenScaleToFitOnScreen()
+		{
+			var screenWidth = game.GraphicsDevice.Adapter.CurrentDisplayMode.Width;
+			var screenHeight = game.GraphicsDevice.Adapter.CurrentDisplayMode.Height;
+
+			var gridSize = GetScreenBounds();
+
+			var scale = Math.Min(
+				screenWidth / gridSize.Width,
+				screenHeight / gridSize.Height
+			);
+
+			return (float)Math.Floor(scale * 0.95f);
+		}
+
 		public void Update(GameTime gameTime)
 		{
-			Characters = new GridCharacter[Width, Height];
 
 			//for (var x = 0; x < Width; x++)
 			//{
@@ -77,12 +90,22 @@ namespace MarbleDrop.Rendering
 
 		public void Draw(SpriteBatch spriteBatch)
 		{
+			var testGridBrightness = 0.1f;
+			var testGridForegroundColor = new Color(0.0f, 0.0f, 0.0f);
+			var testGridBackgroundColor = new Color(testGridBrightness, testGridBrightness, testGridBrightness);
+
 			for (var x = 0; x < Width; x++)
 			{
 				for (var y = 0; y < Height; y++)
 				{
 					var character = Characters[x, y];
 
+					MonoGame.Primitives2D.FillRectangle(spriteBatch, new Rectangle(
+						x * CharacterWidth,
+						y * CharacterHeight,
+						CharacterWidth,
+						CharacterHeight
+					), (x + y) % 2 == 0 ? testGridForegroundColor : testGridBackgroundColor);
 
 					if (character != null)
 					{
@@ -91,6 +114,8 @@ namespace MarbleDrop.Rendering
 					}
 				}
 			}
+
+			Characters = new GridCharacter[Width, Height];
 		}
 
 		public bool TryAddCharacter(GridCharacter character)

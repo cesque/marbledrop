@@ -39,11 +39,11 @@ namespace MarbleDrop.Puzzles.Components
 
 		public override void Initialise()
 		{
-			Inputs.Add(new ComponentPort(this, PortType.INPUT, ResourceType.MARBLE, this.Position + new Vector2(-1, 1), "marble/input"));
-			Outputs.Add(new ComponentPort(this, PortType.OUTPUT, ResourceType.MARBLE, this.Position + new Vector2(5, 1), "marble/output"));
+			Inputs.Add(new ComponentPort(this, PortType.INPUT, ResourceType.MARBLE, new Vector2(-1, 1), "marble/input"));
+			Outputs.Add(new ComponentPort(this, PortType.OUTPUT, ResourceType.MARBLE, new Vector2(5, 1), "marble/output"));
 
-			Outputs.Add(new ComponentPort(this, PortType.OUTPUT, ResourceType.SPARK, this.Position + new Vector2(2, -1), "spark/top"));
-			Outputs.Add(new ComponentPort(this, PortType.OUTPUT, ResourceType.SPARK, this.Position + new Vector2(2, 3), "spark/bottom"));
+			Outputs.Add(new ComponentPort(this, PortType.OUTPUT, ResourceType.SPARK, new Vector2(2, -1), "spark/top"));
+			Outputs.Add(new ComponentPort(this, PortType.OUTPUT, ResourceType.SPARK, new Vector2(2, 3), "spark/bottom"));
 
 			layout = new List<GridCharacter>()
 			{

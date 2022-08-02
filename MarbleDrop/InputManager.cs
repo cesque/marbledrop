@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame;
@@ -47,9 +48,69 @@ namespace MarbleDrop
 			return currentMouseState;
 		}
 
+		public Vector2 GetMouseDelta()
+		{
+			return currentMouseState.Position.ToVector2() - previousMouseState.Position.ToVector2();
+		}
+
 		public bool IsLeftMouseButtonPressed()
 		{
 			return previousMouseState.LeftButton == ButtonState.Released && currentMouseState.LeftButton == ButtonState.Pressed;
+		}
+		
+		public bool IsLeftMouseButtonUntouched()
+		{
+			return previousMouseState.LeftButton == ButtonState.Released && currentMouseState.LeftButton == ButtonState.Released;
+		}
+		
+		public bool IsLeftMouseButtonReleased()
+		{
+			return previousMouseState.LeftButton == ButtonState.Pressed && currentMouseState.LeftButton == ButtonState.Released;
+		}
+		
+		public bool IsLeftMouseButtonHeld()
+		{
+			return previousMouseState.LeftButton == ButtonState.Pressed && currentMouseState.LeftButton == ButtonState.Pressed;
+		}
+		
+		public bool IsRightMouseButtonPressed()
+		{
+			return previousMouseState.RightButton == ButtonState.Released && currentMouseState.RightButton == ButtonState.Pressed;
+		}
+		
+		public bool IsRightMouseButtonUntouched()
+		{
+			return previousMouseState.RightButton == ButtonState.Released && currentMouseState.RightButton == ButtonState.Released;
+		}
+		
+		public bool IsRightMouseButtonReleased()
+		{
+			return previousMouseState.RightButton == ButtonState.Pressed && currentMouseState.RightButton == ButtonState.Released;
+		}
+		
+		public bool IsRightMouseButtonHeld()
+		{
+			return previousMouseState.RightButton == ButtonState.Pressed && currentMouseState.RightButton == ButtonState.Pressed;
+		}
+		
+		public bool IsMiddleMouseButtonPressed()
+		{
+			return previousMouseState.MiddleButton == ButtonState.Released && currentMouseState.MiddleButton == ButtonState.Pressed;
+		}
+		
+		public bool IsMiddleMouseButtonUntouched()
+		{
+			return previousMouseState.MiddleButton == ButtonState.Released && currentMouseState.MiddleButton == ButtonState.Released;
+		}
+		
+		public bool IsMiddleMouseButtonReleased()
+		{
+			return previousMouseState.MiddleButton == ButtonState.Pressed && currentMouseState.MiddleButton == ButtonState.Released;
+		}
+		
+		public bool IsMiddleMouseButtonHeld()
+		{
+			return previousMouseState.MiddleButton == ButtonState.Pressed && currentMouseState.MiddleButton == ButtonState.Pressed;
 		}
 	}
 }
