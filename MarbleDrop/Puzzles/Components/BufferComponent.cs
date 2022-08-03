@@ -18,8 +18,6 @@ namespace MarbleDrop.Puzzles.Components
 		float outputTimer = 0f;
 		bool isOutputting = false;
 
-		List<GridCharacter> layout;
-
 		Color backgroundColor;
 		Color foregroundColor;
 
@@ -44,29 +42,6 @@ namespace MarbleDrop.Puzzles.Components
 
 			Outputs.Add(new ComponentPort(this, PortType.OUTPUT, ResourceType.SPARK, new Vector2(2, -1), "spark/top"));
 			Outputs.Add(new ComponentPort(this, PortType.OUTPUT, ResourceType.SPARK, new Vector2(2, 3), "spark/bottom"));
-
-			layout = new List<GridCharacter>()
-			{
-				new GridCharacter(grid, 170, Position + new Vector2(0, 0), foregroundColor, backgroundColor, Priority.Component),
-				new GridCharacter(grid, 148, Position + new Vector2(1, 0), foregroundColor, backgroundColor, Priority.Component),
-				new GridCharacter(grid, 148, Position + new Vector2(2, 0), foregroundColor, backgroundColor, Priority.Component),
-				new GridCharacter(grid, 148, Position + new Vector2(3, 0), foregroundColor, backgroundColor, Priority.Component),
-				new GridCharacter(grid, 143, Position + new Vector2(4, 0), foregroundColor, backgroundColor, Priority.Component),
-
-                //new GridCharacter(grid, 131, Position + new Vector2(0, 1), Priority.Component),
-                //new GridCharacter(grid, 131, Position + new Vector2(4, 1), Priority.Component),
-                new GridCharacter(grid, 132, Position + new Vector2(0, 1), foregroundColor, backgroundColor, Priority.Component),
-				new GridCharacter(grid, 128, Position + new Vector2(1, 1), grid.Palette.Get("grey"), backgroundColor, Priority.Component),
-				new GridCharacter(grid, 128, Position + new Vector2(2, 1), grid.Palette.Get("grey"), backgroundColor, Priority.Component),
-				new GridCharacter(grid, 128, Position + new Vector2(3, 1), grid.Palette.Get("grey"), backgroundColor, Priority.Component),
-				new GridCharacter(grid, 147, Position + new Vector2(4, 1), foregroundColor, backgroundColor, Priority.Component),
-
-				new GridCharacter(grid, 144, Position + new Vector2(0, 2), foregroundColor, backgroundColor, Priority.Component),
-				new GridCharacter(grid, 148, Position + new Vector2(1, 2), foregroundColor, backgroundColor, Priority.Component),
-				new GridCharacter(grid, 148, Position + new Vector2(2, 2), foregroundColor, backgroundColor, Priority.Component),
-				new GridCharacter(grid, 148, Position + new Vector2(3, 2), foregroundColor, backgroundColor, Priority.Component),
-				new GridCharacter(grid, 169, Position + new Vector2(4, 2), foregroundColor, backgroundColor, Priority.Component),
-			};
 		}
 
 		public override void Update(GameTime gameTime)
@@ -95,9 +70,28 @@ namespace MarbleDrop.Puzzles.Components
 
 		public override List<GridCharacter> GetCharacters()
 		{
-			var characters = new List<GridCharacter>();
+			var characters = new List<GridCharacter>()
+			{
+				new GridCharacter(grid, 170, Position + new Vector2(0, 0), foregroundColor, backgroundColor, Priority.Component),
+				new GridCharacter(grid, 148, Position + new Vector2(1, 0), foregroundColor, backgroundColor, Priority.Component),
+				new GridCharacter(grid, 148, Position + new Vector2(2, 0), foregroundColor, backgroundColor, Priority.Component),
+				new GridCharacter(grid, 148, Position + new Vector2(3, 0), foregroundColor, backgroundColor, Priority.Component),
+				new GridCharacter(grid, 143, Position + new Vector2(4, 0), foregroundColor, backgroundColor, Priority.Component),
 
-			characters.AddRange(layout);
+                //new GridCharacter(grid, 131, Position + new Vector2(0, 1), Priority.Component),
+                //new GridCharacter(grid, 131, Position + new Vector2(4, 1), Priority.Component),
+                new GridCharacter(grid, 132, Position + new Vector2(0, 1), foregroundColor, backgroundColor, Priority.Component),
+				new GridCharacter(grid, 128, Position + new Vector2(1, 1), grid.Palette.Get("grey"), backgroundColor, Priority.Component),
+				new GridCharacter(grid, 128, Position + new Vector2(2, 1), grid.Palette.Get("grey"), backgroundColor, Priority.Component),
+				new GridCharacter(grid, 128, Position + new Vector2(3, 1), grid.Palette.Get("grey"), backgroundColor, Priority.Component),
+				new GridCharacter(grid, 147, Position + new Vector2(4, 1), foregroundColor, backgroundColor, Priority.Component),
+
+				new GridCharacter(grid, 144, Position + new Vector2(0, 2), foregroundColor, backgroundColor, Priority.Component),
+				new GridCharacter(grid, 148, Position + new Vector2(1, 2), foregroundColor, backgroundColor, Priority.Component),
+				new GridCharacter(grid, 148, Position + new Vector2(2, 2), foregroundColor, backgroundColor, Priority.Component),
+				new GridCharacter(grid, 148, Position + new Vector2(3, 2), foregroundColor, backgroundColor, Priority.Component),
+				new GridCharacter(grid, 169, Position + new Vector2(4, 2), foregroundColor, backgroundColor, Priority.Component),
+			};
 
 			for (var i = 0; i < 3; i++)
 			{

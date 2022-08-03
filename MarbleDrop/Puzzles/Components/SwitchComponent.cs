@@ -39,6 +39,11 @@ namespace MarbleDrop.Puzzles.Components
 
 			Inputs.Add(new ComponentPort(this, PortType.INPUT, ResourceType.SPARK, new Vector2(2, 1), "spark/input"));
 
+			UpdateLayouts();
+		}
+
+		void UpdateLayouts()
+		{
 			layouts = new List<List<GridCharacter>>
 			{
 				new List<GridCharacter>
@@ -65,6 +70,12 @@ namespace MarbleDrop.Puzzles.Components
 					new GridCharacter(grid, 25, Position + new Vector2(1, 2), grid.Palette.Get("blue"), grid.Palette.Get("darkblue"), Priority.Component),
 				}
 			};
+		}
+
+		internal override void PositionChanged(Vector2 oldPosition, Vector2 newPosition)
+		{
+			base.PositionChanged(oldPosition, newPosition);
+			UpdateLayouts();
 		}
 
 		public override void Update(GameTime gameTime)

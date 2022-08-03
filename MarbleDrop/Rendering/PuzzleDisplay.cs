@@ -76,6 +76,26 @@ namespace MarbleDrop.Rendering
 			puzzle.display = this;
 		}
 
+		public Vector2 GetMousePositionWithin()
+		{
+			var mousePosition = game.inputManager.GetMouse().Position.ToVector2() / game.screenScale;
+			return mousePosition - ScreenBounds.Location.ToVector2();
+		}
+
+		public Vector2 GetClampedMousePositionWithin()
+		{
+			var mousePositionWithin = GetMousePositionWithin();
+			return new Vector2(
+				Math.Max(0, Math.Min(mousePositionWithin.X, ScreenBounds.Width)),
+				Math.Max(0, Math.Min(mousePositionWithin.Y, ScreenBounds.Height))
+			);
+		}
+
+		public bool IsMouseWithin()
+		{
+			return ScreenBounds.Contains(game.inputManager.GetMouse().Position.ToVector2() / game.screenScale);
+		}
+
 		public void Update(GameTime gameTime)
 		{
 			var cameraVelocity = (X: 0.0f, Y: 0.0f);
@@ -95,12 +115,7 @@ namespace MarbleDrop.Rendering
 				const float scrollTriggerRange = 70.0f;
 				const float scrollTriggerSpeed = 5.0f;
 
-				var mousePosition = game.inputManager.GetMouse().Position.ToVector2() / game.screenScale;
-				var mousePositionWithin = mousePosition - ScreenBounds.Location.ToVector2();
-				var clampedMousePosition = new Vector2(
-					Math.Max(0, Math.Min(mousePositionWithin.X, ScreenBounds.Right)),
-					Math.Max(0, Math.Min(mousePositionWithin.Y, ScreenBounds.Bottom))
-				);
+				var clampedMousePosition = GetClampedMousePositionWithin();
 
 				var x = (ScreenBounds.Width / 2) - clampedMousePosition.X;
 				var xDistanceFromEdge = (ScreenBounds.Width / 2) - Math.Abs(x);

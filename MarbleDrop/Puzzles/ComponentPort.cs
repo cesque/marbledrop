@@ -24,6 +24,8 @@ namespace MarbleDrop.Puzzles
 		public PuzzleComponent Component;
 		public ComponentPort ConnectedPort; // or null
 
+		public bool IsConnected => ConnectedPort != null;
+
 		public ComponentPort(PuzzleComponent component, PortType portType, ResourceType resourceType, Vector2 position, string name)
 		{
 			Component = component;
@@ -37,7 +39,7 @@ namespace MarbleDrop.Puzzles
 		{
 			if (Type != PortType.OUTPUT) throw new Exception("tried to output a marble from a non-output port!");
 
-			if (ConnectedPort != null)
+			if (IsConnected)
 			{
 				ConnectedPort.Input(resource);
 			}
@@ -68,7 +70,7 @@ namespace MarbleDrop.Puzzles
 
 		public void Disconnect()
 		{
-			if(ConnectedPort != null)
+			if(IsConnected)
 			{
 				ConnectedPort.ConnectedPort = null;
 			}

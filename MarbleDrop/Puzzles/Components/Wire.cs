@@ -26,6 +26,9 @@ namespace MarbleDrop.Puzzles.Components
 		internal Color foregroundColor;
 		internal Color backgroundColor;
 
+		float flashTimer;
+		const float flashTimerMax = 0.6f;
+
 		public static Dictionary<(Vector2, Vector2), int> CornerCharacters = new Dictionary<(Vector2, Vector2), int>
 		{
 			{ (up, up), 131 },
@@ -54,6 +57,7 @@ namespace MarbleDrop.Puzzles.Components
 			Speed = 15f;
 			Segments = new List<WireSegment>();
 
+			flashTimer = 0.0f;
 		}
 
 		public Wire(Puzzle puzzle) : this(puzzle, new Guid().ToString()) { }
@@ -157,6 +161,8 @@ namespace MarbleDrop.Puzzles.Components
 
 		public override void Update(GameTime gameTime)
 		{
+			flashTimer = (flashTimer + (float)gameTime.ElapsedGameTime.TotalSeconds) % flashTimerMax;
+
 			for (var i = 0; i < Segments.Count; i++)
 			{
 				Segments[i].Update(gameTime);
@@ -177,7 +183,42 @@ namespace MarbleDrop.Puzzles.Components
 
 		public override bool IsMouseOver() => false;
 
-		public override void DrawEditor(SpriteBatch spritebatch) { }
+		public override void DrawEditor(SpriteBatch spritebatch)
+		{
+			var gridSize = new Vector2(grid.CharacterWidth, grid.CharacterHeight) * game.screenScale;
+			var offset = (puzzle.display.ScreenBounds.Location.ToVector2() - puzzle.display.CameraPosition) * game.screenScale;
+
+			var circleSize = 11f;
+			var circleVec = new Vector2(circleSize, circleSize);
+
+			var disconnectedLerpAmount = (float)Math.Sin((flashTimer / flashTimerMax) * (Math.PI * 2));
+			var disconnectedColor = Color.Crimson;
+
+			var min = 0.0f;
+			var max = circleSize * 0.5f;
+			var step = 1f;
+
+			foreach (var port in Inputs)
+			{
+				var color = Color.Lerp(Color.CornflowerBlue * (port.IsConnected ? 1f : 0.5f), disconnectedColor, port.IsConnected ? 0f : disconnectedLerpAmount);
+
+				for (var i = min; i <= max; i += step)
+				{
+					MonoGame.Primitives2D.DrawCircle(spritebatch, offset + (port.Position * gridSize) + (gridSize / 2f), i, 16, color);
+				}
+			}
+
+			foreach (var port in Outputs)
+			{
+				var color = Color.Lerp(Color.GreenYellow * (port.IsConnected ? 1f : 0.5f), disconnectedColor, port.IsConnected ? 0f : disconnectedLerpAmount);
+
+				for (var i = min; i <= max; i += step)
+				{
+					MonoGame.Primitives2D.DrawCircle(spritebatch, offset + (port.Position * gridSize) + (gridSize / 2f), i, 16, color);
+				}
+			}
+		}
+
 		public override void DrawEditorUI(PuzzleDisplay display) { }
 
 		public static PuzzleComponent FromJSON(Puzzle puzzle, JsonElement element)

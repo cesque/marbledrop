@@ -20,11 +20,14 @@ namespace MarbleDrop.Puzzles
 			get => position;
 			set
 			{
+				if(position == value) return;
 				var old = position;
 				position = value;
 				PositionChanged(old, position);
 			}
 		}
+
+		private Vector2? grabbedOffset;
 
 		public PuzzleComponentWithPosition(Puzzle puzzle) : this(puzzle, Vector2.Zero) { }
 
@@ -73,7 +76,11 @@ namespace MarbleDrop.Puzzles
 
 		internal virtual void PositionChanged(Vector2 oldPosition, Vector2 newPosition)
 		{
-
+			// todo: update this to reroute connected wires
+			foreach(var port in Ports)
+			{
+				port.Disconnect();
+			}
 		}
 
 		public override bool IsMouseOver()
@@ -120,17 +127,32 @@ namespace MarbleDrop.Puzzles
 					);
 				}
 
-				var circleSize = 8f;
-				var circleVec = new Vector2(circleSize + gridSize.X / 2, circleSize + gridSize.Y / 2);
+				var circleSize = 10f;
+				var circleVec = new Vector2(circleSize, circleSize);
+
+				var min = circleSize * 0.7f;
+				var max = circleSize;
+				var step = 1f;
 
 				foreach (var port in Inputs)
 				{
-					MonoGame.Primitives2D.DrawCircle(spritebatch, screenBounds.Location.ToVector2() + (port.Position * gridSize) + (circleVec / 2), 5, 8, Color.GreenYellow);
+
+					var color = Color.GreenYellow * (port.IsConnected ? 1f : 0.5f);
+
+					for (var i = min; i <= max; i += step)
+					{
+						MonoGame.Primitives2D.DrawCircle(spritebatch, screenBounds.Location.ToVector2() + (port.Position * gridSize) + (gridSize / 2f), i, 16, color);
+					}
 				}
 
 				foreach (var port in Outputs)
 				{
-					MonoGame.Primitives2D.DrawCircle(spritebatch, screenBounds.Location.ToVector2() + (port.Position * gridSize) + (circleVec / 2), 5, 8, Color.CornflowerBlue);
+					var color = Color.CornflowerBlue * (port.IsConnected ? 1f : 0.5f);
+
+					for (var i = min; i <= max; i+= step)
+					{
+						MonoGame.Primitives2D.DrawCircle(spritebatch, screenBounds.Location.ToVector2() + (port.Position * gridSize) + (gridSize / 2f), i, 16, color);
+					}
 				}
 			}
 		}
@@ -188,9 +210,7 @@ namespace MarbleDrop.Puzzles
 
 				foreach (var port in Ports)
 				{
-					var isConnected = port.ConnectedPort != null;
-
-					ImGui.PushStyleVar(ImGuiStyleVar.Alpha, isConnected ? 1f : 0.3f);
+					ImGui.PushStyleVar(ImGuiStyleVar.Alpha, port.IsConnected ? 1f : 0.3f);
 
 					var flags = ImGuiTableFlags.BordersOuter;
 
@@ -218,7 +238,7 @@ namespace MarbleDrop.Puzzles
 					ImGui.TableNextColumn();
 					ImGui.Text("Position");
 					ImGui.TableNextColumn();
-					var portPosition = port.Position - Position;
+					var portPosition = port.Position;
 					ImGui.Text($"X: {portPosition.X}, Y: {portPosition.Y}");
 
 					ImGui.TableNextRow();
@@ -226,6 +246,7 @@ namespace MarbleDrop.Puzzles
 					ImGui.Text("Is Connected?");
 					ImGui.TableNextColumn();
 					ImGui.BeginDisabled();
+					var isConnected = port.IsConnected;
 					ImGui.Checkbox($"##{ID}-{port.Name}-connected", ref isConnected);
 					ImGui.EndDisabled();
 
@@ -250,6 +271,31 @@ namespace MarbleDrop.Puzzles
 			if (game.inputManager.IsLeftMouseButtonPressed() && !ImGui.GetIO().WantCaptureMouse)
 			{
 				IsEditorSelected = IsMouseOver();
+			}
+
+			if (game.inputManager.IsLeftMouseButtonHeld() && IsMouseOver() && puzzle.grid.Contains(puzzle.GetMousePositionWithin()))
+			{
+				if(grabbedOffset == null)
+				{
+					grabbedOffset = Position - puzzle.GetClampedMousePositionOnGrid();
+				}			
+			}
+
+			if(game.inputManager.IsLeftMouseButtonReleased() && grabbedOffset != null)
+			{
+				grabbedOffset = null;
+			}
+
+			if(grabbedOffset != null && puzzle.grid.Contains(puzzle.GetClampedMousePositionWithin()))
+			{
+				var tempPosition = puzzle.GetClampedMousePositionOnGrid() + (grabbedOffset ?? Vector2.Zero);
+				var bounds = GetBounds();
+				var clampedPosition = new Vector2(
+					Math.Max(0, Math.Min(puzzle.Width - bounds.Width, tempPosition.X)),
+					Math.Max(0, Math.Min(puzzle.Height - bounds.Height, tempPosition.Y))
+				);
+
+				Position = clampedPosition;
 			}
 		}
 

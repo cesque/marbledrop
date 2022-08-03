@@ -21,6 +21,8 @@ namespace MarbleDrop.Puzzles
 		public int Width => grid.Width;
 		public int Height => grid.Height;
 
+		public Rectangle Bounds => grid.GetScreenBounds();
+
 		public List<PuzzleComponent> Components;
 		public string Name;
 
@@ -53,6 +55,19 @@ namespace MarbleDrop.Puzzles
 
 			grid.Update(gameTime);
 		}
+
+		public Vector2 GetMousePositionWithin()
+		{
+			return display.GetMousePositionWithin() + display.CameraPosition;
+		}
+
+		public Vector2 GetClampedMousePositionWithin()
+		{
+			return display.GetClampedMousePositionWithin() + display.CameraPosition;
+		}
+
+		public Vector2 GetMousePositionOnGrid() => grid.GetGridCoordinatesFromPosition(GetMousePositionWithin());
+		public Vector2 GetClampedMousePositionOnGrid() => grid.GetClampedGridCoordinatesFromPosition(GetClampedMousePositionWithin());
 
 		public void DrawCharacters(SpriteBatch spriteBatch)
 		{

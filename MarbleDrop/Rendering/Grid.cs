@@ -54,6 +54,35 @@ namespace MarbleDrop.Rendering
 			);
 		}
 
+		public Vector2 GetGridCoordinatesFromPosition(Vector2 position)
+		{
+			var x = (int)Math.Floor(position.X / CharacterWidth);
+			if (x == Width) x--;
+
+			var y = (int)Math.Floor(position.Y / CharacterHeight);
+			if (y == Height) y--;
+
+			if(x < 0 || x >= Width || y < 0 || y >= Height)
+			{
+				throw new ArgumentOutOfRangeException("position", $"co-ordinates {{{position.X}, {position.Y}}} -> {{{x}, {y}}} are outside of the bounds of the grid {{{Width - 1}, {Height - 1}}}. maybe you meant to call `GetClampedGridCoordinatesFromPosition()`?");
+			}
+
+			return new Vector2(x, y);
+		}
+
+		public Vector2 GetClampedGridCoordinatesFromPosition(Vector2 position)
+		{
+			var x = Math.Max(0, Math.Min(Width * CharacterWidth, position.X));
+			var y = Math.Max(0, Math.Min(Height * CharacterHeight, position.Y));
+
+			return GetGridCoordinatesFromPosition(new Vector2(x, y));
+		}
+
+		public bool Contains(Vector2 position)
+		{
+			return position.X >= 0 && position.X <= (Width * CharacterWidth) && position.Y >= 0 && position.Y <= (Height * CharacterHeight);
+		}
+
 		public float GetMaxScreenScaleToFitOnScreen()
 		{
 			var screenWidth = game.GraphicsDevice.Adapter.CurrentDisplayMode.Width;
