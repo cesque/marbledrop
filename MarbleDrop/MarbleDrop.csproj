@@ -55,6 +55,7 @@
     <Compile Include="Puzzles\Components\TestComponent.cs" />
     <Compile Include="Puzzles\Components\Wire.cs" />
     <Compile Include="Puzzles\Components\WireSegment.cs" />
+    <Compile Include="Puzzles\PuzzleEditorContext.cs" />
     <Compile Include="Puzzles\Resources\Marble.cs" />
     <Compile Include="Puzzles\PuzzleComponentWithPosition.cs" />
     <Compile Include="Puzzles\Puzzle.cs" />

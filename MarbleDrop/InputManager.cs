@@ -18,6 +18,26 @@ namespace MarbleDrop
 		MouseState previousMouseState;
 		MouseState currentMouseState;
 
+		public Vector2 RawMousePosition
+		{
+			get { return currentMouseState.Position.ToVector2(); }
+		}
+
+		public Vector2 MousePosition
+		{
+			get { return RawMousePosition / game.screenScale; }
+		}
+
+		public Vector2 RawMouseDelta
+		{
+			get { return currentMouseState.Position.ToVector2() - previousMouseState.Position.ToVector2(); }
+		}
+
+		public Vector2 MouseDelta
+		{
+			get { return MousePosition - (previousMouseState.Position.ToVector2() / game.screenScale); }
+		}
+
 		public InputManager(Game1 game)
 		{
 			this.game = game;
@@ -46,11 +66,6 @@ namespace MarbleDrop
 		public MouseState GetMouse()
 		{
 			return currentMouseState;
-		}
-
-		public Vector2 GetMouseDelta()
-		{
-			return currentMouseState.Position.ToVector2() - previousMouseState.Position.ToVector2();
 		}
 
 		public bool IsLeftMouseButtonPressed()

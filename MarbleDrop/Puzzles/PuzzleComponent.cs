@@ -21,14 +21,14 @@ namespace MarbleDrop.Puzzles
 		public List<ComponentPort> Inputs;
 		public List<ComponentPort> Outputs;
 
+		public bool IsEditorSelected => puzzle.display.Editor.SelectedComponent == this;
+
 		public List<ComponentPort> Ports
 		{
 			get { return Inputs.Concat(Outputs).ToList(); }
 		}
 
 		public string ID;
-
-		public bool IsEditorSelected = false;
 
 		public PuzzleComponent(Puzzle puzzle, string id)
 		{
@@ -49,13 +49,7 @@ namespace MarbleDrop.Puzzles
 
 		abstract public void Update(GameTime gameTime);
 
-		virtual public void UpdateEditor(GameTime gametime)
-		{ 
-			if(IsEditorSelected && IsMouseOver() && game.inputManager.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Delete))
-			{
-				Delete();
-			}
-		}
+		virtual public void UpdateEditor(GameTime gametime) { }
 
 		abstract public List<GridCharacter> GetCharacters();
 

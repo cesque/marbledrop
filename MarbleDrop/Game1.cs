@@ -138,7 +138,6 @@ namespace MarbleDrop
 
 			timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-			// TODO: Add your update logic here
 			puzzleDisplay.Update(gameTime);
 
 			base.Update(gameTime);
@@ -150,39 +149,48 @@ namespace MarbleDrop
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Draw(GameTime gameTime)
 		{
+			// generate character grid for puzzle display separately
 			puzzleDisplay.DrawCharacters();
-
-			// handle drawing of non-grid things:
-
+			// draw puzzle display characters to their own render target (doesn't show anything on screen yet)
 			puzzleDisplay.DrawRenderTarget(spriteBatch);
 
+			// clear main render target
 			GraphicsDevice.SetRenderTarget(renderTarget);
 			GraphicsDevice.Clear(Color.Black);
 
-			// * --- draw all stuff to the render target --- */
+			// draw base grid, then puzzle display on top of it
+			// todo: allow some non-puzzledisplay things to render on TOP of the display somehow?
 			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);
-			//puzzle.Draw(spriteBatch);
 			grid.Draw(spriteBatch);
 			puzzleDisplay.Draw(spriteBatch);
-
 			spriteBatch.End();
 
+			// reset render target so we draw to screen now
 			GraphicsDevice.SetRenderTarget(null);
 
-			/* --- draw render target to screen --- */
+			/* draw render target to screen (scaled up by nearest neighbour by screenScale) */
 			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);
 			spriteBatch.Draw(renderTarget, new Rectangle(0, 0, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight), Color.White);
-			puzzleDisplay.DrawEditor(spriteBatch);
+
+			// draw editor textures for puzzle
+			if (puzzleDisplay.Editor.Enabled)
+			{
+				puzzleDisplay.DrawEditor(spriteBatch);
+			}
 
 			spriteBatch.End();
 
 			base.Draw(gameTime);
 
-			imguiRenderer.BeginLayout(gameTime);
-			ImGuiNET.ImGui.SetMouseCursor(ImGuiNET.ImGuiMouseCursor.Arrow);
-			ImGuiNET.ImGui.GetIO().MouseDrawCursor = true;
-			puzzleDisplay.DrawEditorUI();
-			imguiRenderer.EndLayout();
+			// draw editor UI elements
+			if (puzzleDisplay.Editor.Enabled)
+			{
+				imguiRenderer.BeginLayout(gameTime);
+				ImGuiNET.ImGui.SetMouseCursor(ImGuiNET.ImGuiMouseCursor.Arrow);
+				ImGuiNET.ImGui.GetIO().MouseDrawCursor = true;
+				puzzleDisplay.DrawEditorUI();
+				imguiRenderer.EndLayout();
+			}
 		}
 	}
 }

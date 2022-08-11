@@ -27,8 +27,6 @@ namespace MarbleDrop.Puzzles
 			}
 		}
 
-		private Vector2? grabbedOffset;
-
 		public PuzzleComponentWithPosition(Puzzle puzzle) : this(puzzle, Vector2.Zero) { }
 
 		public PuzzleComponentWithPosition(Puzzle puzzle, string id) : this(puzzle, id, Vector2.Zero) { }
@@ -61,7 +59,7 @@ namespace MarbleDrop.Puzzles
 			);
 		}
 
-		Rectangle GetScreenBounds()
+		public Rectangle GetScreenBounds()
 		{
 			var offset = (puzzle.display.ScreenBounds.Location.ToVector2() - puzzle.display.CameraPosition) * game.screenScale;
 			var bounds = GetBounds();
@@ -87,7 +85,7 @@ namespace MarbleDrop.Puzzles
 		{
 			var bounds = GetScreenBounds();
 
-			return bounds.Contains(game.inputManager.GetMouse().Position);
+			return bounds.Contains(game.inputManager.RawMousePosition);
 		}
 
 		public override void DrawEditor(SpriteBatch spritebatch)
@@ -266,36 +264,41 @@ namespace MarbleDrop.Puzzles
 
 		public override void UpdateEditor(GameTime gametime)
 		{
-			base.UpdateEditor(gametime);
+			base.UpdateEditor(gametime);		
+		}
 
-			if (game.inputManager.IsLeftMouseButtonPressed() && !ImGui.GetIO().WantCaptureMouse)
+		public void OnDrop()
+		{
+			foreach(var port in Outputs)
 			{
-				IsEditorSelected = IsMouseOver();
-			}
-
-			if (game.inputManager.IsLeftMouseButtonHeld() && IsMouseOver() && puzzle.grid.Contains(puzzle.GetMousePositionWithin()))
-			{
-				if(grabbedOffset == null)
+				foreach(var component in puzzle.Components)
 				{
-					grabbedOffset = Position - puzzle.GetClampedMousePositionOnGrid();
-				}			
+					if (component == this) continue;
+					foreach (var other in component.Inputs)
+					{
+						if (port.IsConnected || port.ResourceType != other.ResourceType) continue;
+						if(port.GridPosition == other.GridPosition)
+						{
+							port.Connect(other);
+						}
+					}
+				}
 			}
 
-			if(game.inputManager.IsLeftMouseButtonReleased() && grabbedOffset != null)
+			foreach (var port in Inputs)
 			{
-				grabbedOffset = null;
-			}
-
-			if(grabbedOffset != null && puzzle.grid.Contains(puzzle.GetClampedMousePositionWithin()))
-			{
-				var tempPosition = puzzle.GetClampedMousePositionOnGrid() + (grabbedOffset ?? Vector2.Zero);
-				var bounds = GetBounds();
-				var clampedPosition = new Vector2(
-					Math.Max(0, Math.Min(puzzle.Width - bounds.Width, tempPosition.X)),
-					Math.Max(0, Math.Min(puzzle.Height - bounds.Height, tempPosition.Y))
-				);
-
-				Position = clampedPosition;
+				foreach (var component in puzzle.Components)
+				{
+					if (component == this) continue;
+					foreach (var other in component.Outputs)
+					{
+						if (port.IsConnected || port.ResourceType != other.ResourceType) continue;
+						if (port.GridPosition == other.GridPosition)
+						{
+							port.Connect(other);
+						}
+					}
+				}
 			}
 		}
 

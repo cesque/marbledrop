@@ -14,6 +14,7 @@ namespace MarbleDrop.Rendering
 		public Vector2 CameraPosition;
 		public RenderTarget2D RenderTarget;
 		public Rectangle Bounds;
+		public PuzzleEditorContext Editor;
 
 		public Rectangle ScreenBounds {
 			get
@@ -29,7 +30,7 @@ namespace MarbleDrop.Rendering
 
 		Game1 game;
 		Grid grid;
-		Puzzle puzzle;
+		internal Puzzle puzzle;
 
 		List<GridCharacter> layout;
 
@@ -40,6 +41,7 @@ namespace MarbleDrop.Rendering
 			Bounds = bounds;
 			CameraPosition = new Vector2(0, 0);
 			RenderTarget = new RenderTarget2D(game.GraphicsDevice, ScreenBounds.Width, ScreenBounds.Height);
+			Editor = new PuzzleEditorContext(this);
 
 			SetLayout();
 		}
@@ -78,8 +80,7 @@ namespace MarbleDrop.Rendering
 
 		public Vector2 GetMousePositionWithin()
 		{
-			var mousePosition = game.inputManager.GetMouse().Position.ToVector2() / game.screenScale;
-			return mousePosition - ScreenBounds.Location.ToVector2();
+			return game.inputManager.MousePosition - ScreenBounds.Location.ToVector2();
 		}
 
 		public Vector2 GetClampedMousePositionWithin()
@@ -93,7 +94,7 @@ namespace MarbleDrop.Rendering
 
 		public bool IsMouseWithin()
 		{
-			return ScreenBounds.Contains(game.inputManager.GetMouse().Position.ToVector2() / game.screenScale);
+			return ScreenBounds.Contains(game.inputManager.MousePosition);
 		}
 
 		public void Update(GameTime gameTime)
@@ -102,10 +103,10 @@ namespace MarbleDrop.Rendering
 
 			if (game.inputManager.IsMiddleMouseButtonHeld())
 			{
-				var delta = game.inputManager.GetMouseDelta();
+				var delta = game.inputManager.MouseDelta;
 				cameraVelocity = (
-					X: -delta.X / game.screenScale,
-					Y: -delta.Y / game.screenScale
+					X: -delta.X,
+					Y: -delta.Y
 				);
 			} 
 			else
@@ -135,6 +136,17 @@ namespace MarbleDrop.Rendering
 			);
 
 			puzzle.Update(gameTime);
+
+
+			if (Editor.Enabled)
+			{
+				Editor.Update(gameTime);
+			}
+		}
+
+		public Vector2 ConvertPuzzleSpaceCoordsToScreenSpace(Vector2 position)
+		{
+			return (position - CameraPosition + ScreenBounds.Location.ToVector2()) * game.screenScale;
 		}
 
 		public void DrawCharacters()
@@ -164,9 +176,14 @@ namespace MarbleDrop.Rendering
 		{
 			spriteBatch.Draw(RenderTarget, ScreenBounds, Color.White);
 		}
+		public void DrawEditor(SpriteBatch spriteBatch)
+		{
+			Editor.Draw(spriteBatch);
+		}
 
-		public void DrawEditor(SpriteBatch spriteBatch) => puzzle.DrawEditor(spriteBatch);
-
-		public void DrawEditorUI() => puzzle.DrawEditorUI();
+		public void DrawEditorUI()
+		{
+			Editor.DrawUI();
+		}
 	}
 }

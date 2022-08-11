@@ -36,6 +36,7 @@ namespace MarbleDrop.Puzzles
 
 			Components = new List<PuzzleComponent>();
 			componentsReadyForDeletion = new List<PuzzleComponent>();
+
 		}
 
 		public void Update(GameTime gameTime)
@@ -46,14 +47,15 @@ namespace MarbleDrop.Puzzles
 			{
 				Components.Remove(component);
 			}
+			componentsReadyForDeletion.Clear();
 
 			foreach (var component in Components)
 			{
 				component.Update(gameTime);
-				component.UpdateEditor(gameTime);
 			}
 
 			grid.Update(gameTime);
+
 		}
 
 		public Vector2 GetMousePositionWithin()
@@ -84,26 +86,16 @@ namespace MarbleDrop.Puzzles
 			grid.Draw(spriteBatch);
 		}
 
-		public void DrawEditor(SpriteBatch spriteBatch)
+		public void AddComponent(PuzzleComponent component)
 		{
-			foreach (var component in Components)
-			{
-				component.DrawEditor(spriteBatch);
-			}
-		}
-
-		public void DrawEditorUI()
-		{
-			foreach (var component in Components)
-			{
-				component.DrawEditorUI(display);
-			}
+			Components.Add(component);
 		}
 
 		public void RemoveComponent(PuzzleComponent component)
 		{
 			componentsReadyForDeletion.Add(component);
 		}
+
 
 		public static Puzzle FromJSON(Game1 game, JsonElement element)
 		{
@@ -207,8 +199,10 @@ namespace MarbleDrop.Puzzles
 						}
 						catch (Exception e)
 						{
+							Console.WriteLine(e);
 							Console.WriteLine("error finding input and output from json file for components " + component.ID + " -> " + connectedComponentID);
 							Console.WriteLine("maybe you need to be more specific about which ports are being used?");
+							Console.WriteLine();
 						}
 
 						output.Connect(input);
