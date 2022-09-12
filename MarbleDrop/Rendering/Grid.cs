@@ -18,6 +18,8 @@ namespace MarbleDrop.Rendering
 		public int CharacterWidth => Font.CharacterWidth;
 		public int CharacterHeight => Font.CharacterHeight;
 
+		public Vector2 GridCenterOffset;
+
 		public BitmapFont Font;
 		public ColorPalette Palette;
 
@@ -42,6 +44,8 @@ namespace MarbleDrop.Rendering
 
 			Font = new BitmapFont(game, "zxevolution", 8, 8);
 			Palette = ColorPalette.Load("pico-8.txt");
+
+			GridCenterOffset = new Vector2(CharacterWidth, CharacterHeight) / 2f;
 		}
 
 		public Rectangle GetScreenBounds()
@@ -54,7 +58,13 @@ namespace MarbleDrop.Rendering
 			);
 		}
 
-		public Vector2 GetGridCoordinatesFromPosition(Vector2 position)
+		/// <summary>
+		///		Gets the grid coordinates of the cell that contains the specified position.
+		/// </summary>
+		/// <param name="position">The position to convert.</param>
+		/// <returns>A <see cref="Vector2"/> representing the coordinates of the grid cell. The X and Y components of this vector will be integer values.</returns>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="position"/> is outside the bounds of the grid.</exception>
+		public Vector2 ConvertPuzzleSpaceToGridSpace(Vector2 position)
 		{
 			var x = (int)Math.Floor(position.X / CharacterWidth);
 			if (x == Width) x--;
@@ -70,12 +80,53 @@ namespace MarbleDrop.Rendering
 			return new Vector2(x, y);
 		}
 
-		public Vector2 GetClampedGridCoordinatesFromPosition(Vector2 position)
+		/// <summary>
+		///		Gets the grid coordinates of the cell that is closest to the specified position.
+		/// </summary>
+		/// <param name="position">The position to convert.</param>
+		/// <returns>A <see cref="Vector2"/> representing the coordinates of the grid cell. The X and Y components of this vector will be integer values.</returns>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="position"/> is outside the bounds of the grid.</exception>
+		public Vector2 ConvertPuzzleSpaceToGridSpaceNearest(Vector2 position)
+		{
+			var x = (int)Math.Round(position.X / CharacterWidth);
+			if (x == Width) x--;
+
+			var y = (int)Math.Round(position.Y / CharacterHeight);
+			if (y == Height) y--;
+
+			if (x < 0 || x >= Width || y < 0 || y >= Height)
+			{
+				throw new ArgumentOutOfRangeException("position", $"co-ordinates {{{position.X}, {position.Y}}} -> {{{x}, {y}}} are outside of the bounds of the grid {{{Width - 1}, {Height - 1}}}. maybe you meant to call `GetClampedGridCoordinatesFromPosition()`?");
+			}
+
+			return new Vector2(x, y);
+		}
+
+		/// <summary>
+		///		Gets the grid coordinates of the cell that contains the specified position, clamped to the bounds of the grid.
+		/// </summary>
+		/// <param name="position">The position to convert.</param>
+		/// <returns>A <see cref="Vector2"/> representing the coordinates of the grid cell. The X and Y components of this vector will be integer values.</returns>
+		public Vector2 ConvertPuzzleSpaceToGridSpaceClamped(Vector2 position)
 		{
 			var x = Math.Max(0, Math.Min(Width * CharacterWidth, position.X));
 			var y = Math.Max(0, Math.Min(Height * CharacterHeight, position.Y));
 
-			return GetGridCoordinatesFromPosition(new Vector2(x, y));
+			return ConvertPuzzleSpaceToGridSpace(new Vector2(x, y));
+		}
+
+		/// <summary>
+		///		Gets the grid coordinates of the cell that is closest to the specified position, clamped to the bounds of the grid.
+		/// </summary>
+		/// <param name="position">The position to convert.</param>
+		/// <returns>A <see cref="Vector2"/> representing the coordinates of the grid cell. The X and Y components of this vector will be integer values.</returns>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="position"/> is outside the bounds of the grid.</exception>
+		public Vector2 ConvertPuzzleSpaceToGridSpaceNearestClamped(Vector2 position)
+		{
+			var x = Math.Max(0, Math.Min(Width * CharacterWidth, position.X));
+			var y = Math.Max(0, Math.Min(Height * CharacterHeight, position.Y));
+
+			return ConvertPuzzleSpaceToGridSpace(new Vector2(x, y));
 		}
 
 		public bool Contains(Vector2 position)
@@ -96,6 +147,19 @@ namespace MarbleDrop.Rendering
 			);
 
 			return (float)Math.Floor(scale * 0.95f);
+		}
+
+		/// <summary>
+		///		Gets the position of a specific grid cell (equivalent to coordinates * (grid character width, grid character height).
+		/// </summary>
+		/// <param name="coordinates">The grid position to convert.</param>
+		/// <returns>A <see cref="Vector2"/> representing the position of the specified grid cell</returns>
+		public Vector2 ConvertGridSpaceToPuzzleSpace(Vector2 coordinates)
+		{
+			return new Vector2(
+				coordinates.X * CharacterWidth,
+				coordinates.Y * CharacterHeight
+			);
 		}
 
 		public void Update(GameTime gameTime)

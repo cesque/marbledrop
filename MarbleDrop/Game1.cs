@@ -163,6 +163,12 @@ namespace MarbleDrop
 			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);
 			grid.Draw(spriteBatch);
 			puzzleDisplay.Draw(spriteBatch);
+			// draw editor textures for puzzle
+			if (puzzleDisplay.Editor.Enabled)
+			{
+				puzzleDisplay.DrawEditor(spriteBatch);
+			}
+
 			spriteBatch.End();
 
 			// reset render target so we draw to screen now
@@ -171,13 +177,6 @@ namespace MarbleDrop
 			/* draw render target to screen (scaled up by nearest neighbour by screenScale) */
 			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);
 			spriteBatch.Draw(renderTarget, new Rectangle(0, 0, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight), Color.White);
-
-			// draw editor textures for puzzle
-			if (puzzleDisplay.Editor.Enabled)
-			{
-				puzzleDisplay.DrawEditor(spriteBatch);
-			}
-
 			spriteBatch.End();
 
 			base.Draw(gameTime);

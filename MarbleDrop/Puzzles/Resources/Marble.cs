@@ -64,7 +64,7 @@ namespace MarbleDrop.Puzzles.Resources
 				{
 					list.Add(new GridCharacter(
 						puzzle.grid,
-						characterIndex,
+						8 * 16,
 						lastGridPosition,
 						colorMap[Color],
 						Priority.Marble

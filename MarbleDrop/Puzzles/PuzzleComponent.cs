@@ -21,7 +21,7 @@ namespace MarbleDrop.Puzzles
 		public List<ComponentPort> Inputs;
 		public List<ComponentPort> Outputs;
 
-		public bool IsEditorSelected => puzzle.display.Editor.SelectedComponent == this;
+		public bool IsEditorSelected => false;//puzzle.display.Editor.SelectedComponent == this;
 
 		public List<ComponentPort> Ports
 		{

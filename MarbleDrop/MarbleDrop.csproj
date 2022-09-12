@@ -55,7 +55,10 @@
     <Compile Include="Puzzles\Components\TestComponent.cs" />
     <Compile Include="Puzzles\Components\Wire.cs" />
     <Compile Include="Puzzles\Components\WireSegment.cs" />
-    <Compile Include="Puzzles\PuzzleEditorContext.cs" />
+    <Compile Include="Puzzles\Editor\Modes\EditWireMode.cs" />
+    <Compile Include="Puzzles\Editor\Modes\SelectMode.cs" />
+    <Compile Include="Puzzles\Editor\PuzzleEditorContext.cs" />
+    <Compile Include="Puzzles\Editor\PuzzleEditorMode.cs" />
     <Compile Include="Puzzles\Resources\Marble.cs" />
     <Compile Include="Puzzles\PuzzleComponentWithPosition.cs" />
     <Compile Include="Puzzles\Puzzle.cs" />
@@ -128,6 +131,7 @@
     <None Include="app.manifest" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
   <Import Project="packages\ImGui.NET.1.87.3\build\net40\ImGui.NET.targets" Condition="Exists('packages\ImGui.NET.1.87.3\build\net40\ImGui.NET.targets')" />

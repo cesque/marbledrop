@@ -61,14 +61,14 @@ namespace MarbleDrop.Puzzles
 
 		public Rectangle GetScreenBounds()
 		{
-			var offset = (puzzle.display.ScreenBounds.Location.ToVector2() - puzzle.display.CameraPosition) * game.screenScale;
+			var offset = (puzzle.display.ScreenBounds.Location.ToVector2() - puzzle.display.CameraPosition);
 			var bounds = GetBounds();
 
 			return new Rectangle(
-				(int)((bounds.X * grid.CharacterWidth * game.screenScale) + offset.X),
-				(int)((bounds.Y * grid.CharacterWidth * game.screenScale) + offset.Y),
-				(int)(bounds.Width * grid.CharacterWidth * game.screenScale),
-				(int)(bounds.Height * grid.CharacterWidth * game.screenScale)
+				(int)((bounds.X * grid.CharacterWidth) + offset.X),
+				(int)((bounds.Y * grid.CharacterWidth) + offset.Y),
+				bounds.Width * grid.CharacterWidth,
+				bounds.Height * grid.CharacterWidth
 			);
 		}
 
@@ -79,80 +79,50 @@ namespace MarbleDrop.Puzzles
 			{
 				port.Disconnect();
 			}
+
+			foreach (var port in Outputs)
+			{
+				foreach (var component in puzzle.Components)
+				{
+					if (component == this) continue;
+					foreach (var other in component.Inputs)
+					{
+						if (port.IsConnected || port.ResourceType != other.ResourceType) continue;
+						if (port.GridPosition == other.GridPosition)
+						{
+							port.Connect(other);
+						}
+					}
+				}
+			}
+
+			foreach (var port in Inputs)
+			{
+				foreach (var component in puzzle.Components)
+				{
+					if (component == this) continue;
+					foreach (var other in component.Outputs)
+					{
+						if (port.IsConnected || port.ResourceType != other.ResourceType) continue;
+						if (port.GridPosition == other.GridPosition)
+						{
+							port.Connect(other);
+						}
+					}
+				}
+			}
 		}
 
 		public override bool IsMouseOver()
 		{
 			var bounds = GetScreenBounds();
 
-			return bounds.Contains(game.inputManager.RawMousePosition);
+			return bounds.Contains(game.inputManager.MousePosition);
 		}
 
 		public override void DrawEditor(SpriteBatch spritebatch)
 		{
 			base.DrawEditor(spritebatch);
-
-			var screenBounds = GetScreenBounds();
-
-			if (IsMouseOver() && !IsEditorSelected)
-			{
-				MonoGame.Primitives2D.DrawRectangle(spritebatch, screenBounds, Color.CornflowerBlue);
-			}
-
-			if (IsEditorSelected)
-			{
-				MonoGame.Primitives2D.DrawRectangle(spritebatch, screenBounds, Color.GreenYellow);
-
-				var gridSize = new Vector2(grid.CharacterWidth, grid.CharacterHeight) * game.screenScale;
-
-				for (var x = screenBounds.Left; x < screenBounds.Right; x += (int)gridSize.X)
-				{
-					MonoGame.Primitives2D.DrawLine(
-						spritebatch,
-						new Vector2(x, screenBounds.Top),
-						new Vector2(x, screenBounds.Bottom),
-						new Color(Color.Black, 0.4f)
-					);
-				}
-
-				for (var y = screenBounds.Top; y < screenBounds.Bottom; y += (int)gridSize.Y)
-				{
-					MonoGame.Primitives2D.DrawLine(
-						spritebatch,
-						new Vector2(screenBounds.Left, y),
-						new Vector2(screenBounds.Right, y),
-						new Color(Color.Black, 0.4f)
-					);
-				}
-
-				var circleSize = 10f;
-				var circleVec = new Vector2(circleSize, circleSize);
-
-				var min = circleSize * 0.7f;
-				var max = circleSize;
-				var step = 1f;
-
-				foreach (var port in Inputs)
-				{
-
-					var color = Color.GreenYellow * (port.IsConnected ? 1f : 0.5f);
-
-					for (var i = min; i <= max; i += step)
-					{
-						MonoGame.Primitives2D.DrawCircle(spritebatch, screenBounds.Location.ToVector2() + (port.Position * gridSize) + (gridSize / 2f), i, 16, color);
-					}
-				}
-
-				foreach (var port in Outputs)
-				{
-					var color = Color.CornflowerBlue * (port.IsConnected ? 1f : 0.5f);
-
-					for (var i = min; i <= max; i+= step)
-					{
-						MonoGame.Primitives2D.DrawCircle(spritebatch, screenBounds.Location.ToVector2() + (port.Position * gridSize) + (gridSize / 2f), i, 16, color);
-					}
-				}
-			}
 		}
 
 		public void DrawEditorUI(PuzzleDisplay display, bool shouldCloseWindow)
@@ -161,7 +131,6 @@ namespace MarbleDrop.Puzzles
 			if (!IsEditorSelected) return;
 
 			var bounds = GetBounds();
-			var screenBounds = GetScreenBounds();
 
 			var screen = game.GraphicsDevice.Viewport.Bounds;
 			var width = 300;
@@ -265,41 +234,6 @@ namespace MarbleDrop.Puzzles
 		public override void UpdateEditor(GameTime gametime)
 		{
 			base.UpdateEditor(gametime);		
-		}
-
-		public void OnDrop()
-		{
-			foreach(var port in Outputs)
-			{
-				foreach(var component in puzzle.Components)
-				{
-					if (component == this) continue;
-					foreach (var other in component.Inputs)
-					{
-						if (port.IsConnected || port.ResourceType != other.ResourceType) continue;
-						if(port.GridPosition == other.GridPosition)
-						{
-							port.Connect(other);
-						}
-					}
-				}
-			}
-
-			foreach (var port in Inputs)
-			{
-				foreach (var component in puzzle.Components)
-				{
-					if (component == this) continue;
-					foreach (var other in component.Outputs)
-					{
-						if (port.IsConnected || port.ResourceType != other.ResourceType) continue;
-						if (port.GridPosition == other.GridPosition)
-						{
-							port.Connect(other);
-						}
-					}
-				}
-			}
 		}
 
 		public static void PopulateFromJSON(PuzzleComponentWithPosition component, JsonElement element)

@@ -12,7 +12,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace MarbleDrop.Puzzles.Components
 {
-	class Wire : PuzzleComponent
+	public class Wire : PuzzleComponent
 	{
 		public float Speed;
 		public List<WireSegment> Segments;
@@ -185,10 +185,10 @@ namespace MarbleDrop.Puzzles.Components
 
 		public override void DrawEditor(SpriteBatch spritebatch)
 		{
-			var gridSize = new Vector2(grid.CharacterWidth, grid.CharacterHeight) * game.screenScale;
-			var offset = (puzzle.display.ScreenBounds.Location.ToVector2() - puzzle.display.CameraPosition) * game.screenScale;
+			var gridSize = new Vector2(grid.CharacterWidth, grid.CharacterHeight);
+			var offset = (puzzle.display.ScreenBounds.Location.ToVector2() - puzzle.display.CameraPosition);
 
-			var circleSize = 11f;
+			var circleSize = 5f;
 			var circleVec = new Vector2(circleSize, circleSize);
 
 			var disconnectedLerpAmount = (float)Math.Sin((flashTimer / flashTimerMax) * (Math.PI * 2));

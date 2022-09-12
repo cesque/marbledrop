@@ -24,6 +24,8 @@ namespace MarbleDrop.Puzzles
 		public Rectangle Bounds => grid.GetScreenBounds();
 
 		public List<PuzzleComponent> Components;
+		public List<Wire> Wires => Components.Where(component => component is Wire).Select(component => component as Wire).ToList();
+
 		public string Name;
 
 		float debugTimer;
@@ -58,18 +60,29 @@ namespace MarbleDrop.Puzzles
 
 		}
 
-		public Vector2 GetMousePositionWithin()
+		// converts display space -> puzzle space
+		public Vector2 ConvertDisplaySpaceToPuzzleSpace(Vector2 position)
 		{
-			return display.GetMousePositionWithin() + display.CameraPosition;
+			return position + display.CameraPosition;
 		}
 
-		public Vector2 GetClampedMousePositionWithin()
+		public Vector2 ConvertPuzzleSpaceToDisplaySpace(Vector2 position)
 		{
-			return display.GetClampedMousePositionWithin() + display.CameraPosition;
+			return position - display.CameraPosition;
 		}
 
-		public Vector2 GetMousePositionOnGrid() => grid.GetGridCoordinatesFromPosition(GetMousePositionWithin());
-		public Vector2 GetClampedMousePositionOnGrid() => grid.GetClampedGridCoordinatesFromPosition(GetClampedMousePositionWithin());
+		public Vector2 GetMousePositionInPuzzleSpace()
+		{
+			return ConvertDisplaySpaceToPuzzleSpace(display.GetMousePositionInDisplaySpace());
+		}
+
+		public Vector2 GetClampedMousePositionInPuzzleSpace()
+		{
+			return ConvertDisplaySpaceToPuzzleSpace(display.GetClampedMousePositionInDisplaySpace());
+		}
+
+		public Vector2 GetMousePositionInGridSpace() => grid.ConvertPuzzleSpaceToGridSpace(GetMousePositionInPuzzleSpace());
+		public Vector2 GetClampedMousePositionInGridSpace() => grid.ConvertPuzzleSpaceToGridSpaceClamped(GetClampedMousePositionInPuzzleSpace());
 
 		public void DrawCharacters(SpriteBatch spriteBatch)
 		{

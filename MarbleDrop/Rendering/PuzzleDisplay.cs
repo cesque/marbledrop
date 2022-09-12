@@ -77,15 +77,16 @@ namespace MarbleDrop.Rendering
 			this.puzzle = puzzle;
 			puzzle.display = this;
 		}
-
-		public Vector2 GetMousePositionWithin()
+		
+		// converts screen space -> display space
+		public Vector2 GetMousePositionInDisplaySpace()
 		{
 			return game.inputManager.MousePosition - ScreenBounds.Location.ToVector2();
 		}
 
-		public Vector2 GetClampedMousePositionWithin()
+		public Vector2 GetClampedMousePositionInDisplaySpace()
 		{
-			var mousePositionWithin = GetMousePositionWithin();
+			var mousePositionWithin = GetMousePositionInDisplaySpace();
 			return new Vector2(
 				Math.Max(0, Math.Min(mousePositionWithin.X, ScreenBounds.Width)),
 				Math.Max(0, Math.Min(mousePositionWithin.Y, ScreenBounds.Height))
@@ -116,7 +117,7 @@ namespace MarbleDrop.Rendering
 				const float scrollTriggerRange = 70.0f;
 				const float scrollTriggerSpeed = 5.0f;
 
-				var clampedMousePosition = GetClampedMousePositionWithin();
+				var clampedMousePosition = GetClampedMousePositionInDisplaySpace();
 
 				var x = (ScreenBounds.Width / 2) - clampedMousePosition.X;
 				var xDistanceFromEdge = (ScreenBounds.Width / 2) - Math.Abs(x);
@@ -144,9 +145,14 @@ namespace MarbleDrop.Rendering
 			}
 		}
 
-		public Vector2 ConvertPuzzleSpaceCoordsToScreenSpace(Vector2 position)
+		public Vector2 ConvertDisplaySpaceToScreenSpace(Vector2 position)
 		{
-			return (position - CameraPosition + ScreenBounds.Location.ToVector2()) * game.screenScale;
+			return position + ScreenBounds.Location.ToVector2();
+		}
+
+		public Vector2 ConvertPuzzleSpaceToScreenSpace(Vector2 position)
+		{
+			return ConvertDisplaySpaceToScreenSpace(puzzle.ConvertPuzzleSpaceToDisplaySpace(position));
 		}
 
 		public void DrawCharacters()

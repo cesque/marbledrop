@@ -9,17 +9,26 @@ using System.Threading.Tasks;
 
 namespace MarbleDrop.Puzzles.Components
 {
-	class WireSegment
+	public class WireSegment
 	{
 		public Vector2 Start;
 		public Vector2 End;
 
-		public float Length;
+		public float Length => Vector2.Distance(Start, End);
 
 		public Dictionary<Resource, float> Resources;
 		public List<Resource> OutputQueue;
 
-		public readonly Vector2 Direction;
+		public bool IsTerminal => wire.Segments.First() == this || wire.Segments.Last() == this;
+		public WireSegment PreviousSegment => wire.Segments.ElementAtOrDefault(wire.Segments.IndexOf(this) - 1);
+		public WireSegment NextSegment => wire.Segments.ElementAtOrDefault(wire.Segments.IndexOf(this) + 1);
+
+		public Vector2 Direction => new Vector2(
+				Math.Sign(End.X - Start.X),
+				Math.Sign(End.Y - Start.Y)
+			);
+
+		public readonly WireSegmentOrientation Orientation;
 
 		static Dictionary<Vector2, int> marbleIndexesPerDirection = new Dictionary<Vector2, int>
 		{
@@ -43,8 +52,6 @@ namespace MarbleDrop.Puzzles.Components
 				throw new Exception("wire segment is not orthogonal!");
 			}
 
-			Length = Vector2.Distance(Start, End);
-
 			Resources = new Dictionary<Resource, float>();
 
 			OutputQueue = new List<Resource>();
@@ -61,10 +68,7 @@ namespace MarbleDrop.Puzzles.Components
 				xDiff = 0;
 			}
 
-			Direction = new Vector2(
-				Math.Sign(xDiff),
-				Math.Sign(yDiff)
-			);
+			Orientation = xDiff == 0 ? WireSegmentOrientation.VERTICAL : WireSegmentOrientation.HORIZONTAL;
 		}
 
 		public void Update(GameTime gameTime)
@@ -237,5 +241,11 @@ namespace MarbleDrop.Puzzles.Components
 
 			return characters;
 		}
+	}
+
+	public enum WireSegmentOrientation
+	{
+		HORIZONTAL,
+		VERTICAL,
 	}
 }
