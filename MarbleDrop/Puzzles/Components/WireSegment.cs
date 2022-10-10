@@ -19,9 +19,11 @@ namespace MarbleDrop.Puzzles.Components
 		public Dictionary<Resource, float> Resources;
 		public List<Resource> OutputQueue;
 
-		public bool IsTerminal => wire.Segments.First() == this || wire.Segments.Last() == this;
-		public WireSegment PreviousSegment => wire.Segments.ElementAtOrDefault(wire.Segments.IndexOf(this) - 1);
-		public WireSegment NextSegment => wire.Segments.ElementAtOrDefault(wire.Segments.IndexOf(this) + 1);
+		public bool IsFirst => Wire.Segments.First() == this;
+		public bool IsLast => Wire.Segments.Last() == this;
+		public bool IsTerminal => Wire.Segments.First() == this || Wire.Segments.Last() == this;
+		public WireSegment PreviousSegment => Wire.Segments.ElementAtOrDefault(Wire.Segments.IndexOf(this) - 1);
+		public WireSegment NextSegment => Wire.Segments.ElementAtOrDefault(Wire.Segments.IndexOf(this) + 1);
 
 		public Vector2 Direction => new Vector2(
 				Math.Sign(End.X - Start.X),
@@ -38,11 +40,11 @@ namespace MarbleDrop.Puzzles.Components
 			{ new Vector2(0, -1), 30 },
 		};
 
-		Wire wire;
+		public Wire Wire;
 
 		public WireSegment(Wire wire, Vector2 start, Vector2 end)
 		{
-			this.wire = wire;
+			this.Wire = wire;
 
 			Start = start;
 			End = end;
@@ -77,7 +79,7 @@ namespace MarbleDrop.Puzzles.Components
 
 			foreach (var resource in Resources.Keys.ToList())
 			{
-				Resources[resource] += (float)gameTime.ElapsedGameTime.TotalSeconds * wire.Speed;
+				Resources[resource] += (float)gameTime.ElapsedGameTime.TotalSeconds * Wire.Speed;
 
 				if (Resources[resource] > Length + 0.5)
 				{
@@ -104,18 +106,18 @@ namespace MarbleDrop.Puzzles.Components
 			/* todo: rewrite so its not duplicated? */
 			var current = new Vector2(Start.X, Start.Y);
 
-			var priority = wire.ResourceType == ResourceType.MARBLE ? Priority.Wire : Priority.SparkWire;
+			var priority = Wire.ResourceType == ResourceType.MARBLE ? Priority.Wire : Priority.SparkWire;
 
 			if (Direction.X == 1)
 			{
 				do
 				{
 					characters.Add(new GridCharacter(
-						wire.puzzle.grid,
+						Wire.puzzle.grid,
 						148,
 						current,
-						wire.foregroundColor,
-						wire.backgroundColor,
+						Wire.foregroundColor,
+						Wire.backgroundColor,
 						priority
 					));
 
@@ -128,11 +130,11 @@ namespace MarbleDrop.Puzzles.Components
 				do
 				{
 					characters.Add(new GridCharacter(
-						wire.puzzle.grid,
+						Wire.puzzle.grid,
 						148,
 						current,
-						wire.foregroundColor,
-						wire.backgroundColor,
+						Wire.foregroundColor,
+						Wire.backgroundColor,
 						priority
 					));
 
@@ -145,11 +147,11 @@ namespace MarbleDrop.Puzzles.Components
 				do
 				{
 					characters.Add(new GridCharacter(
-						wire.puzzle.grid,
+						Wire.puzzle.grid,
 						131,
 						current,
-						wire.foregroundColor,
-						wire.backgroundColor,
+						Wire.foregroundColor,
+						Wire.backgroundColor,
 						priority
 					));
 
@@ -162,11 +164,11 @@ namespace MarbleDrop.Puzzles.Components
 				do
 				{
 					characters.Add(new GridCharacter(
-						wire.puzzle.grid,
+						Wire.puzzle.grid,
 						131,
 						current,
-						wire.foregroundColor,
-						wire.backgroundColor,
+						Wire.foregroundColor,
+						Wire.backgroundColor,
 						priority
 					));
 
