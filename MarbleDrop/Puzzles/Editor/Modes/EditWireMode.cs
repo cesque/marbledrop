@@ -30,6 +30,10 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 
 		public override void Leave()
 		{
+			hoveredWire = null;
+			hoveredSegment = null;
+			StopDraggingSegment(true);
+
 			base.Leave();
 		}
 
@@ -42,6 +46,11 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 
 			hoveredWire = null;
 			hoveredSegment = null;
+
+			if (draggedSegment != null && puzzle.game.inputManager.IsRightMouseButtonReleased())
+			{
+				StopDraggingSegment(true);
+			}
 
 			if (draggedSegment != null && puzzle.game.inputManager.IsLeftMouseButtonReleased())
 			{
@@ -62,7 +71,7 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 						hoveredWire = wire;
 						hoveredSegment = segment;
 
-						if(!segment.IsTerminal && puzzle.game.inputManager.IsLeftMouseButtonPressed())
+						if (puzzle.game.inputManager.IsLeftMouseButtonPressed())
 						{
 							StartDraggingSegment(segment);
 						}
@@ -120,17 +129,17 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 			newDraggedSegmentEndpoints = (segment.Start, segment.End);
 		}
 
-		void StopDraggingSegment()
+		void StopDraggingSegment(bool shouldReset = false)
 		{
 			// if released when not dragged, then we don't care, reset
-			if (!newDraggedSegmentEndpoints.HasValue || (draggedSegment.Start == newDraggedSegmentEndpoints.Value.Start && draggedSegment.End == newDraggedSegmentEndpoints.Value.End))
+			if (shouldReset || !newDraggedSegmentEndpoints.HasValue || (draggedSegment.Start == newDraggedSegmentEndpoints.Value.Start && draggedSegment.End == newDraggedSegmentEndpoints.Value.End))
 			{
 				draggedSegment = null;
 				newDraggedSegmentEndpoints = null;
 				return;
 			}
 
-			if(draggedSegment.PreviousSegment.Orientation == draggedSegment.Orientation)
+			if (draggedSegment.PreviousSegment != null && draggedSegment.PreviousSegment.Orientation == draggedSegment.Orientation)
 			{
 				// add new segment between
 				var newSegment = new WireSegment(draggedSegment.Wire, draggedSegment.PreviousSegment.End, newDraggedSegmentEndpoints.Value.Start);
@@ -138,46 +147,41 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 				
 			}
 
-			if(draggedSegment.NextSegment.Orientation == draggedSegment.Orientation)
+			if (draggedSegment.NextSegment != null && draggedSegment.NextSegment.Orientation == draggedSegment.Orientation)
 			{
 				// add new segment between
 				var newSegment = new WireSegment(draggedSegment.Wire, newDraggedSegmentEndpoints.Value.End, draggedSegment.NextSegment.Start);
 				draggedSegment.Wire.Segments.Insert(draggedSegment.Wire.Segments.IndexOf(draggedSegment) + 1, newSegment);				
 			}
 
-			draggedSegment.PreviousSegment.End = newDraggedSegmentEndpoints.Value.Start;
-			draggedSegment.NextSegment.Start = newDraggedSegmentEndpoints.Value.End;
+			if (draggedSegment.PreviousSegment != null) draggedSegment.PreviousSegment.End = newDraggedSegmentEndpoints.Value.Start;
+			if (draggedSegment.NextSegment != null) draggedSegment.NextSegment.Start = newDraggedSegmentEndpoints.Value.End;
 
 			draggedSegment.Start = newDraggedSegmentEndpoints.Value.Start;
 			draggedSegment.End = newDraggedSegmentEndpoints.Value.End;
 
 			// remove 0-length segments
 			var wire = draggedSegment.Wire;
-			if (draggedSegment.PreviousSegment.Length == 0) wire.Segments.Remove(draggedSegment.PreviousSegment);
-			if (draggedSegment.NextSegment.Length == 0) wire.Segments.Remove(draggedSegment.NextSegment);
+			if (draggedSegment.PreviousSegment != null && draggedSegment.PreviousSegment.Length == 0) wire.Segments.Remove(draggedSegment.PreviousSegment);
+			if (draggedSegment.NextSegment != null && draggedSegment.NextSegment.Length == 0) wire.Segments.Remove(draggedSegment.NextSegment);
 
 			// consolidate co-linear segments
-			var index = wire.Segments.IndexOf(draggedSegment);
-
-			if(draggedSegment.Orientation == draggedSegment.PreviousSegment.Orientation || draggedSegment.Orientation == draggedSegment.NextSegment.Orientation)
+			var newSegments = new List<WireSegment>();
+			foreach (var segment in wire.Segments)
 			{
-				var removePrevious = draggedSegment.Orientation == draggedSegment.PreviousSegment.Orientation;
-				var start = removePrevious ? draggedSegment.PreviousSegment.Start : newDraggedSegmentEndpoints.Value.Start;
-
-				var removeNext = draggedSegment.Orientation == draggedSegment.NextSegment.Orientation;
-				var end = removeNext ? draggedSegment.NextSegment.End : newDraggedSegmentEndpoints.Value.End;
-
-				var newSegment = new WireSegment(wire, start, end);
-
-				var previousSegment = draggedSegment.PreviousSegment;
-				var nextSegment = draggedSegment.NextSegment;
-
-				wire.Segments.Insert(index, newSegment);
-				if(removePrevious) wire.Segments.Remove(previousSegment);
-				if(removeNext) wire.Segments.Remove(nextSegment);
-				wire.Segments.Remove(draggedSegment);
+				var lastSegment = newSegments.LastOrDefault();
+				if(lastSegment != null && lastSegment.Orientation == segment.Orientation && lastSegment.End == segment.Start)
+				{
+					lastSegment.End = segment.End;
+				} else
+				{
+					newSegments.Add(segment);
+				}
 			}
 
+			wire.Segments = newSegments;
+
+			// reset dragged state
 			draggedSegment = null;
 			newDraggedSegmentEndpoints = null;
 		}
@@ -186,12 +190,12 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 		{
 			base.Draw(spriteBatch);
 
-			if(draggedSegment == null && hoveredWire != null)
+			if (draggedSegment == null && hoveredWire != null)
 			{
 				foreach (var segment in hoveredWire.Segments)
 				{
 					// highlight wire in grey, unless segment is movable in which case we'll highlight in yellow later
-					if(!(segment == hoveredSegment && !segment.IsTerminal)) {
+					if (!(segment == hoveredSegment && !segment.IsTerminal)) {
 						DrawSegmentHighlight(spriteBatch, segment, Color.White * 0.2f);
 					}
 				}
@@ -214,11 +218,11 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 				var (start, end) = GetSegmentEndpointsInScreenSpace(hoveredSegment);
 			}
 
-			if(draggedSegment != null)
+			if (draggedSegment != null)
 			{
-				DrawGridAlignedRectangleGivenTopLeftAndBottomRight(spriteBatch, draggedSegment.PreviousSegment.End, newDraggedSegmentEndpoints.Value.Start, Color.Cyan * 0.2f);
+				if (draggedSegment.PreviousSegment != null) DrawGridAlignedRectangleGivenTopLeftAndBottomRight(spriteBatch, draggedSegment.PreviousSegment.End, newDraggedSegmentEndpoints.Value.Start, Color.Cyan * 0.2f);
 				DrawGridAlignedRectangleGivenTopLeftAndBottomRight(spriteBatch, newDraggedSegmentEndpoints.Value.Start, newDraggedSegmentEndpoints.Value.End, Color.Gold * 0.6f);
-				DrawGridAlignedRectangleGivenTopLeftAndBottomRight(spriteBatch, newDraggedSegmentEndpoints.Value.End, draggedSegment.NextSegment.Start, Color.Magenta * 0.2f);
+				if (draggedSegment.NextSegment != null) DrawGridAlignedRectangleGivenTopLeftAndBottomRight(spriteBatch, newDraggedSegmentEndpoints.Value.End, draggedSegment.NextSegment.Start, Color.Magenta * 0.2f);
 			}
 
 			foreach(var wire in this.puzzle.Wires)

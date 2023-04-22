@@ -72,7 +72,7 @@ namespace MarbleDrop.Rendering
 			var y = (int)Math.Floor(position.Y / CharacterHeight);
 			if (y == Height) y--;
 
-			if(x < 0 || x >= Width || y < 0 || y >= Height)
+			if (x < 0 || x >= Width || y < 0 || y >= Height)
 			{
 				throw new ArgumentOutOfRangeException("position", $"co-ordinates {{{position.X}, {position.Y}}} -> {{{x}, {y}}} are outside of the bounds of the grid {{{Width - 1}, {Height - 1}}}. maybe you meant to call `GetClampedGridCoordinatesFromPosition()`?");
 			}
@@ -169,7 +169,7 @@ namespace MarbleDrop.Rendering
 			//{
 			//    for (var y = 0; y < Height; y++)
 			//    {
-			//        if(Globals.RNG.Next(100) > 90)
+			//        if (Globals.RNG.Next(100) > 90)
 			//        {
 			//            Characters[x, y] = new GridCharacter(
 			//                this,

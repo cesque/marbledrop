@@ -154,7 +154,7 @@ namespace MarbleDrop.Puzzles
 
 				//Console.WriteLine("checking " + type);
 
-				//if(componentTypes.ContainsKey(type))
+				//if (componentTypes.ContainsKey(type))
 				//{
 				//    var componentType = componentTypes[type];
 

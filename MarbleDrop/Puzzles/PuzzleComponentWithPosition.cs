@@ -20,7 +20,7 @@ namespace MarbleDrop.Puzzles
 			get => position;
 			set
 			{
-				if(position == value) return;
+				if (position == value) return;
 				var old = position;
 				position = value;
 				PositionChanged(old, position);

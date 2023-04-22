@@ -31,7 +31,7 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 
 		public override void Leave()
 		{
-			if(IsDragging)
+			if (IsDragging)
 			{
 				DropDraggedComponent(false);
 			}
@@ -154,7 +154,7 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 			{
 				component.DrawEditor(spriteBatch);
 
-				if(component is PuzzleComponentWithPosition)
+				if (component is PuzzleComponentWithPosition)
 				{
 					var componentWithPosition = component as PuzzleComponentWithPosition;
 					var screenBounds = componentWithPosition.GetScreenBounds();

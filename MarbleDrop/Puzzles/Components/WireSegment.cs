@@ -187,7 +187,7 @@ namespace MarbleDrop.Puzzles.Components
 
 				//var last = distance - 1;
 
-				//if(last < 0)
+				//if (last < 0)
 				//{
 				//    last = 0;
 				//}
@@ -210,7 +210,7 @@ namespace MarbleDrop.Puzzles.Components
 				//    return isSameX && isSameY;
 				//});
 
-				//if(tile != null)
+				//if (tile != null)
 				//{
 				//    //changing tiles charcter index to add trail
 				//    //if (tile.CharacterIndex == 131)

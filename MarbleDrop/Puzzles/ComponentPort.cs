@@ -84,7 +84,7 @@ namespace MarbleDrop.Puzzles
 
 		public void Disconnect()
 		{
-			if(IsConnected)
+			if (IsConnected)
 			{
 				ConnectedPort.ConnectedPort = null;
 			}

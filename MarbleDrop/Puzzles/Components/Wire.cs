@@ -62,6 +62,12 @@ namespace MarbleDrop.Puzzles.Components
 
 		public Wire(Puzzle puzzle) : this(puzzle, new Guid().ToString()) { }
 
+		public Wire(Puzzle puzzle, ComponentPort from, ComponentPort to) : this(puzzle, new Guid().ToString()) {
+			var middle = new Vector2(from.GridPosition.X, to.GridPosition.Y);
+			ConnectFrom(from, middle);
+			ConnectTo(to);
+		}
+
 		public override void Initialise()
 		{
 			if (ResourceType == ResourceType.MARBLE)
