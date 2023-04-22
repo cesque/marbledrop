@@ -74,43 +74,7 @@ namespace MarbleDrop.Puzzles
 
 		internal virtual void PositionChanged(Vector2 oldPosition, Vector2 newPosition)
 		{
-			// todo: update this to reroute connected wires
-			foreach(var port in Ports)
-			{
-				port.Disconnect();
-			}
-
-			foreach (var port in Outputs)
-			{
-				foreach (var component in puzzle.Components)
-				{
-					if (component == this) continue;
-					foreach (var other in component.Inputs)
-					{
-						if (port.IsConnected || port.ResourceType != other.ResourceType) continue;
-						if (port.GridPosition == other.GridPosition)
-						{
-							port.Connect(other);
-						}
-					}
-				}
-			}
-
-			foreach (var port in Inputs)
-			{
-				foreach (var component in puzzle.Components)
-				{
-					if (component == this) continue;
-					foreach (var other in component.Outputs)
-					{
-						if (port.IsConnected || port.ResourceType != other.ResourceType) continue;
-						if (port.GridPosition == other.GridPosition)
-						{
-							port.Connect(other);
-						}
-					}
-				}
-			}
+			this.AutomaticallyConnectPorts();
 		}
 
 		public override bool IsMouseOver()

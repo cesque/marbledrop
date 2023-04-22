@@ -51,7 +51,7 @@ namespace MarbleDrop.Puzzles.Components
 
 			if (!(start.X == end.X ^ start.Y == end.Y))
 			{
-				throw new Exception("wire segment is not orthogonal!");
+				throw new ArgumentException("wire segment is not orthogonal!");
 			}
 
 			Resources = new Dictionary<Resource, float>();

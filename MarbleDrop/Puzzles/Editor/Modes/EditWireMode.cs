@@ -71,7 +71,7 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 						hoveredWire = wire;
 						hoveredSegment = segment;
 
-						if (puzzle.game.inputManager.IsLeftMouseButtonPressed())
+						if (puzzle.game.inputManager.IsLeftMouseButtonPressed() && wire.Segments.Count > 1)
 						{
 							StartDraggingSegment(segment);
 						}
@@ -83,14 +83,14 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 			{
 				if (draggedSegment.Orientation == WireSegmentOrientation.VERTICAL)
 				{
-					var start = new Vector2(mousePosition.X, draggedSegment.Start.Y);
-					var end = new Vector2(mousePosition.X, draggedSegment.End.Y);
+					var start = new Vector2(mousePosition.X, draggedSegment.IsFirst ? mousePosition.Y : draggedSegment.Start.Y);
+					var end = new Vector2(mousePosition.X, draggedSegment.IsLast ? mousePosition.Y : draggedSegment.End.Y);
 
 					newDraggedSegmentEndpoints = (start, end);
 				} else if (draggedSegment.Orientation == WireSegmentOrientation.HORIZONTAL)
 				{
-					var start = new Vector2(draggedSegment.Start.X, mousePosition.Y);
-					var end = new Vector2(draggedSegment.End.X, mousePosition.Y);
+					var start = new Vector2(draggedSegment.IsFirst ? mousePosition.X : draggedSegment.Start.X, mousePosition.Y);
+					var end = new Vector2(draggedSegment.IsLast ? mousePosition.X : draggedSegment.End.X, mousePosition.Y);
 
 					newDraggedSegmentEndpoints = (start, end);
 				}
@@ -100,26 +100,31 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 			{
 				WireSegment segment1, segment2;
 				var index = hoveredWire.Segments.IndexOf(hoveredSegment);
-
-				if (hoveredSegment.Orientation == WireSegmentOrientation.HORIZONTAL)
+				try
 				{
-					var splitPosition = mousePosition.X;
+					if (hoveredSegment.Orientation == WireSegmentOrientation.HORIZONTAL)
+					{
+						var splitPosition = mousePosition.X;
 
-					segment1 = new WireSegment(hoveredWire, hoveredSegment.Start, new Vector2(splitPosition, hoveredSegment.End.Y));
-					segment2 = new WireSegment(hoveredWire, new Vector2(splitPosition, hoveredSegment.End.Y), hoveredSegment.End);				
-				}
-				else
+						segment1 = new WireSegment(hoveredWire, hoveredSegment.Start, new Vector2(splitPosition, hoveredSegment.End.Y));
+						segment2 = new WireSegment(hoveredWire, new Vector2(splitPosition, hoveredSegment.End.Y), hoveredSegment.End);
+					}
+					else
+					{
+						var splitPosition = mousePosition.Y;
+
+						segment1 = new WireSegment(hoveredWire, hoveredSegment.Start, new Vector2(hoveredSegment.End.X, splitPosition));
+						segment2 = new WireSegment(hoveredWire, new Vector2(hoveredSegment.End.X, splitPosition), hoveredSegment.End);
+					}
+
+					hoveredWire.Segments.RemoveAt(index);
+					hoveredWire.Segments.Insert(index, segment1);
+					hoveredWire.Segments.Insert(index + 1, segment2);
+				} catch (ArgumentException e)
 				{
-					var splitPosition = mousePosition.Y;
-
-					segment1 = new WireSegment(hoveredWire, hoveredSegment.Start, new Vector2(hoveredSegment.End.X, splitPosition));
-					segment2 = new WireSegment(hoveredWire, new Vector2(hoveredSegment.End.X, splitPosition), hoveredSegment.End);
+					Console.WriteLine(e.Message);
 				}
-
-				hoveredWire.Segments.RemoveAt(index);
-				hoveredWire.Segments.Insert(index, segment1);
-				hoveredWire.Segments.Insert(index + 1, segment2);
-			}
+		}
 		}
 
 		void StartDraggingSegment(WireSegment segment)
@@ -127,6 +132,11 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 			draggedSegment = segment;
 
 			newDraggedSegmentEndpoints = (segment.Start, segment.End);
+
+			foreach (var port in segment.Wire.Ports)
+			{
+				port.Disconnect();
+			}
 		}
 
 		void StopDraggingSegment(bool shouldReset = false)
@@ -166,24 +176,102 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 			if (draggedSegment.NextSegment != null && draggedSegment.NextSegment.Length == 0) wire.Segments.Remove(draggedSegment.NextSegment);
 
 			// consolidate co-linear segments
-			var newSegments = new List<WireSegment>();
-			foreach (var segment in wire.Segments)
-			{
-				var lastSegment = newSegments.LastOrDefault();
-				if(lastSegment != null && lastSegment.Orientation == segment.Orientation && lastSegment.End == segment.Start)
-				{
-					lastSegment.End = segment.End;
-				} else
-				{
-					newSegments.Add(segment);
-				}
-			}
+			var newSegments = wire.Segments;
+			var tempSegments = new List<WireSegment>();
+			var didConsolidateThisTurn = false;
 
+			do
+			{
+				tempSegments = new List<WireSegment>();
+				didConsolidateThisTurn = false;
+
+				foreach (var segment in newSegments)
+				{
+					if (segment.Length == 0)
+					{
+						didConsolidateThisTurn = true;
+						continue;
+					}
+
+					var lastSegment = tempSegments.LastOrDefault();
+					if (lastSegment != null && lastSegment.Orientation == segment.Orientation && lastSegment.End == segment.Start)
+					{
+						didConsolidateThisTurn = true;
+						lastSegment.End = segment.End;
+					}
+					else
+					{
+						tempSegments.Add(segment);
+					}
+				}
+
+				newSegments = tempSegments;
+			} while (didConsolidateThisTurn);
+			
 			wire.Segments = newSegments;
+
+			if (wire.Segments.Count == 0)
+			{
+				wire.Delete();
+			} else {
+
+				// relocate ComponentPorts to match the new locations
+				foreach (var input in wire.Inputs) input.Position = wire.Segments.First().Start;
+				foreach (var input in wire.Outputs) input.Position = wire.Segments.Last().End;
+				// connect any ComponentPorts which are in the same location as others
+
+				Console.WriteLine(wire.Segments.Count);
+				if (wire.Segments.Count == 0) wire.Delete();
+
+				wire.AutomaticallyConnectPorts();
+			}
 
 			// reset dragged state
 			draggedSegment = null;
 			newDraggedSegmentEndpoints = null;
+		}
+
+		void DrawAllComponentPorts(SpriteBatch spriteBatch)
+		{
+			foreach (var component in puzzle.Components)
+			{
+				component.DrawEditor(spriteBatch);
+
+				if (component is PuzzleComponentWithPosition)
+				{
+					var componentWithPosition = component as PuzzleComponentWithPosition;
+					var screenBounds = componentWithPosition.GetScreenBounds();
+
+					var gridSize = new Vector2(puzzle.grid.CharacterWidth, puzzle.grid.CharacterHeight);
+					var circleSize = 5f;
+
+					var min = circleSize * 0.7f;
+					var max = circleSize;
+					var step = 1f;
+
+					foreach (var port in component.Inputs)
+					{
+
+						var color = Color.GreenYellow * (port.IsConnected ? 1f : 0.5f);
+
+						for (var i = min; i <= max; i += step)
+						{
+							MonoGame.Primitives2D.DrawCircle(spriteBatch, screenBounds.Location.ToVector2() + (port.Position * gridSize) + (gridSize / 2f), i, 16, color);
+						}
+					}
+
+					foreach (var port in component.Outputs)
+					{
+						var color = Color.CornflowerBlue * (port.IsConnected ? 1f : 0.5f);
+
+						for (var i = min; i <= max; i += step)
+						{
+							MonoGame.Primitives2D.DrawCircle(spriteBatch, screenBounds.Location.ToVector2() + (port.Position * gridSize) + (gridSize / 2f), i, 16, color);
+						}
+					}
+
+				}
+			}
 		}
 
 		public override void Draw(SpriteBatch spriteBatch)
@@ -201,7 +289,7 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 				}
 			}
 
-			if (draggedSegment == null && hoveredSegment != null && !hoveredSegment.IsTerminal)
+			if (draggedSegment == null && hoveredSegment != null)
 			{
 				// draw box around the wire segment
 				// we do some funky math here because drawing rects with negative width/height looked strange
@@ -225,14 +313,16 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 				if (draggedSegment.NextSegment != null) DrawGridAlignedRectangleGivenTopLeftAndBottomRight(spriteBatch, newDraggedSegmentEndpoints.Value.End, draggedSegment.NextSegment.Start, Color.Magenta * 0.2f);
 			}
 
-			foreach(var wire in this.puzzle.Wires)
-			{
-				foreach(var segment in wire.Segments)
-				{
-					if (segment.IsFirst) continue;
-					DrawGridAlignedRectangleGivenTopLeftAndBottomRight(spriteBatch, segment.Start, segment.Start, Color.Cyan * 0.5f);
-				}
-			}
+			//foreach(var wire in this.puzzle.Wires)
+			//{
+			//	foreach(var segment in wire.Segments)
+			//	{
+			//		if (segment.IsFirst) continue;
+			//		DrawGridAlignedRectangleGivenTopLeftAndBottomRight(spriteBatch, segment.Start, segment.Start, Color.Cyan * 0.5f);
+			//	}
+			//}
+
+			DrawAllComponentPorts(spriteBatch);
 		}
 
 		(Vector2 Start, Vector2 end) GetSegmentEndpointsInScreenSpace(WireSegment segment)

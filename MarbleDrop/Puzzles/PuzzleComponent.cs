@@ -57,9 +57,7 @@ namespace MarbleDrop.Puzzles
 
 		public virtual void DrawEditor(SpriteBatch spritebatch) { }
 
-
 		public virtual void DrawEditorUI(PuzzleDisplay display) { }
-
 
 		public void Output(ComponentPort output, Resource resource)
 		{
@@ -93,6 +91,49 @@ namespace MarbleDrop.Puzzles
 			puzzle.RemoveComponent(this);
 		}
 
+		public void AutomaticallyConnectPorts()
+		{
+			// todo: update this to reroute connected wires
+			Console.WriteLine("disconnecting ports");
+			foreach (var port in Ports)
+			{
+				port.Disconnect();
+			}
+
+
+			foreach (var port in Inputs)
+			{
+				foreach (var component in puzzle.Components)
+				{
+					if (component == this) continue;
+					foreach (var other in component.Outputs)
+					{
+						if (port.IsConnected || port.ResourceType != other.ResourceType) continue;
+						if (port.GridPosition == other.GridPosition)
+						{
+							port.Connect(other);
+						}
+					}
+				}
+			}
+
+			foreach (var port in Outputs)
+			{
+				foreach (var component in puzzle.Components)
+				{
+					if (component == this) continue;
+					foreach (var other in component.Inputs)
+					{
+						if (port.IsConnected || port.ResourceType != other.ResourceType) continue;
+						if (port.GridPosition == other.GridPosition)
+						{
+							port.Connect(other);
+						}
+					}
+				}
+			}
+		}
+
 
 		abstract public bool IsMouseOver();
 
@@ -103,6 +144,5 @@ namespace MarbleDrop.Puzzles
 
 			var data = element.GetProperty("data");
 		}
-
 	}
 }
