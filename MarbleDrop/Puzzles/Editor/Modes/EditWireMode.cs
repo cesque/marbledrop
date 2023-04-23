@@ -71,7 +71,7 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 						hoveredWire = wire;
 						hoveredSegment = segment;
 
-						if (puzzle.game.inputManager.IsLeftMouseButtonPressed() && wire.Segments.Count > 1)
+						if (puzzle.game.inputManager.IsLeftMouseButtonPressed())
 						{
 							StartDraggingSegment(segment);
 						}
@@ -81,20 +81,35 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 
 			if (draggedSegment != null)
 			{
-				if (draggedSegment.Orientation == WireSegmentOrientation.VERTICAL)
-				{
-					var start = new Vector2(mousePosition.X, draggedSegment.IsFirst ? mousePosition.Y : draggedSegment.Start.Y);
-					var end = new Vector2(mousePosition.X, draggedSegment.IsLast ? mousePosition.Y : draggedSegment.End.Y);
+				var isStartConnectedToPort = draggedSegment.IsFirst && draggedSegment.Wire.Inputs.Any(port => port.IsConnected);
+				var isStartConnectedToAnotherSegment = !draggedSegment.IsFirst;
 
-					newDraggedSegmentEndpoints = (start, end);
-				}
-				else if (draggedSegment.Orientation == WireSegmentOrientation.HORIZONTAL)
-				{
-					var start = new Vector2(draggedSegment.IsFirst ? mousePosition.X : draggedSegment.Start.X, mousePosition.Y);
-					var end = new Vector2(draggedSegment.IsLast ? mousePosition.X : draggedSegment.End.X, mousePosition.Y);
+				var isEndConnectedToPort = draggedSegment.IsLast && draggedSegment.Wire.Outputs.Any(port => port.IsConnected);
+				var isEndConnectedToAnotherSegment = !draggedSegment.IsLast;
 
-					newDraggedSegmentEndpoints = (start, end);
-				}
+				var (start, end) = (draggedSegment.Start, draggedSegment.End);
+
+				var startX = start.X;
+				var startY = start.Y;
+				var endX = end.X;
+				var endY = end.Y;
+
+				var isVertical = draggedSegment.Orientation == WireSegmentOrientation.VERTICAL;
+
+				// arcane boolean statements replacing a 4-depth nested if
+				// discovered through drawing a decision tree, converting it to a truth table, solving with K-maps, and simplifying the resultant boolean expression
+				// makes sure that the endpoints move in the most intuitive way
+				var shouldUpdateStartX = !isStartConnectedToPort && (isVertical || !isStartConnectedToAnotherSegment) && !(isVertical && isEndConnectedToPort);
+				var shouldUpdateStartY = !isStartConnectedToPort && !(isVertical && isStartConnectedToAnotherSegment) && (isVertical || !isEndConnectedToPort);
+				var shouldUpdateEndX = !isEndConnectedToPort && (isVertical || !isEndConnectedToAnotherSegment) && !(isVertical && isStartConnectedToPort);
+				var shouldUpdateEndY = !isEndConnectedToPort && !(isVertical && isEndConnectedToAnotherSegment) && (isVertical || !isStartConnectedToPort);
+
+				if(shouldUpdateStartX) startX = mousePosition.X;
+				if(shouldUpdateStartY) startY = mousePosition.Y;
+				if(shouldUpdateEndX) endX = mousePosition.X;
+				if(shouldUpdateEndY) endY = mousePosition.Y;
+
+				newDraggedSegmentEndpoints = (new Vector2(startX, startY), new Vector2(endX, endY));
 			}
 
 			if (hoveredSegment != null && puzzle.game.inputManager.IsRightMouseButtonReleased())
@@ -134,11 +149,6 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 			draggedSegment = segment;
 
 			newDraggedSegmentEndpoints = (segment.Start, segment.End);
-
-			foreach (var port in segment.Wire.Ports)
-			{
-				port.Disconnect();
-			}
 		}
 
 		void StopDraggingSegment(bool shouldReset = false)
@@ -218,7 +228,6 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 			}
 			else
 			{
-
 				// relocate ComponentPorts to match the new locations
 				foreach (var input in wire.Inputs) input.Position = wire.Segments.First().Start;
 				foreach (var input in wire.Outputs) input.Position = wire.Segments.Last().End;
