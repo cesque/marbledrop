@@ -71,8 +71,6 @@ namespace MarbleDrop.Rendering
 			{
 				var pieces = line.Split(' ');
 
-				Console.WriteLine(String.Join(", ", pieces));
-
 				var colorString = pieces[0];
 
 				// get rgb values differently if AARRGGBB or RRGGBB

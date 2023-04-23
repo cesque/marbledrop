@@ -16,6 +16,8 @@ namespace MarbleDrop.Rendering
 		public Rectangle Bounds;
 		public PuzzleEditorContext Editor;
 
+		public bool IsEdgePanEnabled = false;
+
 		public Rectangle ScreenBounds {
 			get
 			{
@@ -110,7 +112,7 @@ namespace MarbleDrop.Rendering
 					Y: -delta.Y
 				);
 			} 
-			else
+			else if(IsEdgePanEnabled)
 			{
 				// edge pan code
 				#region edge pan

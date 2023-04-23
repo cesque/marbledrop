@@ -21,8 +21,6 @@ namespace MarbleDrop.Puzzles
 		public List<ComponentPort> Inputs;
 		public List<ComponentPort> Outputs;
 
-		public bool IsEditorSelected => false;//puzzle.display.Editor.SelectedComponent == this;
-
 		public List<ComponentPort> Ports
 		{
 			get { return Inputs.Concat(Outputs).ToList(); }
@@ -94,7 +92,6 @@ namespace MarbleDrop.Puzzles
 		public void AutomaticallyConnectPorts()
 		{
 			// todo: update this to reroute connected wires
-			Console.WriteLine("disconnecting ports");
 			foreach (var port in Ports)
 			{
 				port.Disconnect();

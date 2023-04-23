@@ -92,7 +92,6 @@ namespace MarbleDrop.Puzzles
 		public void DrawEditorUI(PuzzleDisplay display, bool shouldCloseWindow)
 		{
 			base.DrawEditorUI(display);
-			if (!IsEditorSelected) return;
 
 			var bounds = GetBounds();
 

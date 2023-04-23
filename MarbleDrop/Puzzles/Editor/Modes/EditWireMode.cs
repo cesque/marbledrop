@@ -87,7 +87,8 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 					var end = new Vector2(mousePosition.X, draggedSegment.IsLast ? mousePosition.Y : draggedSegment.End.Y);
 
 					newDraggedSegmentEndpoints = (start, end);
-				} else if (draggedSegment.Orientation == WireSegmentOrientation.HORIZONTAL)
+				}
+				else if (draggedSegment.Orientation == WireSegmentOrientation.HORIZONTAL)
 				{
 					var start = new Vector2(draggedSegment.IsFirst ? mousePosition.X : draggedSegment.Start.X, mousePosition.Y);
 					var end = new Vector2(draggedSegment.IsLast ? mousePosition.X : draggedSegment.End.X, mousePosition.Y);
@@ -120,7 +121,8 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 					hoveredWire.Segments.RemoveAt(index);
 					hoveredWire.Segments.Insert(index, segment1);
 					hoveredWire.Segments.Insert(index + 1, segment2);
-				} catch (ArgumentException e)
+				}
+				catch (ArgumentException e)
 				{
 					Console.WriteLine(e.Message);
 				}
@@ -213,14 +215,15 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 			if (wire.Segments.Count == 0)
 			{
 				wire.Delete();
-			} else {
+			}
+			else
+			{
 
 				// relocate ComponentPorts to match the new locations
 				foreach (var input in wire.Inputs) input.Position = wire.Segments.First().Start;
 				foreach (var input in wire.Outputs) input.Position = wire.Segments.Last().End;
 				// connect any ComponentPorts which are in the same location as others
 
-				Console.WriteLine(wire.Segments.Count);
 				if (wire.Segments.Count == 0) wire.Delete();
 
 				wire.AutomaticallyConnectPorts();

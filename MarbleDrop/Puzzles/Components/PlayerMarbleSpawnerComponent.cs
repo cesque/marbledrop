@@ -85,11 +85,6 @@ namespace MarbleDrop.Puzzles.Components
 		public override void DrawEditorUI(PuzzleDisplay display)
 		{
 			DrawEditorUI(display, false);
-			if (!IsEditorSelected) return;
-
-			ImGuiNET.ImGui.Text("Spawner");
-
-			ImGuiNET.ImGui.End();
 		}
 
 

@@ -213,7 +213,6 @@ namespace MarbleDrop.Rendering
 
 		public bool TryAddCharacter(GridCharacter character)
 		{
-
 			var x = (int)Math.Round(character.Position.X);
 			var y = (int)Math.Round(character.Position.Y);
 

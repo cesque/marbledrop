@@ -22,6 +22,10 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 		Vector2? grabOffsetGrid;
 		RenderTarget2D dragPreview;
 
+		Type newComponentType;
+		RenderTarget2D newComponentPreview;
+
+
 		public SelectMode(PuzzleEditorContext context) : base(context) { }
 
 		public override void Enter()
@@ -43,6 +47,32 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 		{
 			base.Update(gameTime);
 
+			if (newComponentType != null)
+			{
+				if (puzzle.game.inputManager.IsLeftMouseButtonReleased())
+				{
+					var component = (PuzzleComponentWithPosition)Activator.CreateInstance(newComponentType, new object[] { puzzle });
+
+					component.Position = puzzle.GetClampedMousePositionInGridSpace();
+					puzzle.AddComponent(component);
+					component.Initialise();
+					component.AutomaticallyConnectPorts();
+
+					newComponentType = null;
+				}
+				else if (puzzle.game.inputManager.IsRightMouseButtonReleased())
+				{
+					newComponentType = null;
+				}
+			}
+			else
+			{
+				HandleSelectionAndDragging();
+			}
+		}
+
+		void HandleSelectionAndDragging()
+		{
 			// drop dragged component
 			if (IsDragging && puzzle.game.inputManager.IsLeftMouseButtonReleased())
 			{
@@ -57,8 +87,8 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 				{
 					var componentWithPosition = (PuzzleComponentWithPosition)component;
 
-
-					var shouldCheckHover = puzzle.game.inputManager.IsLeftMouseButtonPressed() || puzzle.game.inputManager.IsLeftMouseButtonReleased();
+					// this variable helps us not check hover state on every frame for every component, which i think would not be great perf wise
+					var shouldCheckHover = puzzle.game.inputManager.IsLeftMouseButtonPressed() || puzzle.game.inputManager.IsLeftMouseButtonReleased() || puzzle.game.inputManager.IsRightMouseButtonReleased();
 					if (shouldCheckHover && !ImGui.GetIO().WantCaptureMouse && componentWithPosition.IsMouseOver())
 					{
 						if (puzzle.game.inputManager.IsLeftMouseButtonPressed())
@@ -70,6 +100,10 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 						else if (puzzle.game.inputManager.IsLeftMouseButtonReleased())
 						{
 							mouseDownPosition = null;
+						}
+						else if (puzzle.game.inputManager.IsRightMouseButtonReleased())
+						{
+							component.Delete();
 						}
 					}
 				}
@@ -225,6 +259,22 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 					}
 				}
 			}
+
+			if(newComponentType != null)
+			{
+				var grid = puzzle.grid;
+				var screenBounds = newComponentPreview.Bounds;
+
+				var mousePosition = puzzle.display.ConvertDisplaySpaceToScreenSpace(puzzle.ConvertPuzzleSpaceToDisplaySpace(puzzle.grid.ConvertGridSpaceToPuzzleSpace(puzzle.GetClampedMousePositionInGridSpace())));
+				var drawBounds = new Rectangle(
+					(int)(mousePosition.X),
+					(int)(mousePosition.Y),
+					screenBounds.Width,
+					screenBounds.Height
+				);
+
+				spriteBatch.Draw(newComponentPreview, drawBounds, screenBounds, Color.White * 0.5f);
+			}
 		}
 
 		void DrawComponentHoverIfApplicable(SpriteBatch spriteBatch, PuzzleComponentWithPosition component, Rectangle screenBounds)
@@ -296,7 +346,62 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 		{
 			base.DrawUI();
 
-			if (SelectedComponent != null) SelectedComponent.DrawEditorUI(puzzle.display);
+			if (SelectedComponent != null)
+			{
+				SelectedComponent.DrawEditorUI(puzzle.display);
+			}
+			else
+			{
+				var screen = puzzle.game.GraphicsDevice.Viewport.Bounds;
+				var width = 300;
+				ImGui.SetNextWindowPos(new System.Numerics.Vector2(screen.Right - width, 0));
+				ImGui.SetNextWindowSize(new System.Numerics.Vector2(width, screen.Height));
+				ImGui.Begin("SELECT MODE");
+
+				// todo: maybe the name can go into the class as a static member?
+				var componentsButtons = new List<(string Name, Type Type)>()
+				{
+					(Name: "Buffer", Type: typeof(Components.BufferComponent)),
+					(Name: "Switch", Type: typeof(Components.SwitchComponent)),
+					(Name: "Marble Spawner", Type: typeof(Components.PlayerMarbleSpawnerComponent)),
+				};
+
+				foreach (var button in componentsButtons)
+				{
+					if (ImGui.Button(button.Name))
+					{
+						if (!IsDragging)
+						{
+							newComponentType = button.Type;
+
+							var graphics = puzzle.game.GraphicsDevice;
+							var component = (PuzzleComponentWithPosition)Activator.CreateInstance(newComponentType, new object[] { puzzle });
+							component.Position = Vector2.Zero;
+							component.Initialise();
+							var componentBounds = component.GetBounds();
+							newComponentPreview = new RenderTarget2D(graphics, componentBounds.Width * puzzle.grid.CharacterWidth, componentBounds.Height * puzzle.grid.CharacterHeight);
+
+							var grid = new Grid(puzzle.game, componentBounds.Width, componentBounds.Height);
+
+							foreach (var character in component.GetCharacters())
+							{
+								grid.TryAddCharacter(character);
+							}
+
+							graphics.SetRenderTarget(newComponentPreview);
+							graphics.Clear(Color.HotPink);
+							var spriteBatch = new SpriteBatch(graphics);
+							spriteBatch.Begin();
+
+							grid.Draw(spriteBatch);
+
+							spriteBatch.End();
+							graphics.SetRenderTarget(null);
+
+						}
+					}
+				}
+			}
 		}
 	}
 }
