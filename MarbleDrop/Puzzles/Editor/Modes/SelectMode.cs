@@ -93,17 +93,20 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 					{
 						if (puzzle.game.inputManager.IsLeftMouseButtonPressed())
 						{
-							SelectedComponent = component;
-							mouseDownPosition = puzzle.GetMousePositionInPuzzleSpace();
-							didSelectComponentThisFrame = true;
+							if (puzzle.game.inputManager.IsKeyHeld(Microsoft.Xna.Framework.Input.Keys.LeftControl))
+							{
+								component.Delete();
+							}
+							else
+							{
+								SelectedComponent = component;
+								mouseDownPosition = puzzle.GetMousePositionInPuzzleSpace();
+								didSelectComponentThisFrame = true;
+							}
 						}
 						else if (puzzle.game.inputManager.IsLeftMouseButtonReleased())
 						{
 							mouseDownPosition = null;
-						}
-						else if (puzzle.game.inputManager.IsRightMouseButtonReleased())
-						{
-							component.Delete();
 						}
 					}
 				}

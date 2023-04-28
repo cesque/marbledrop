@@ -103,7 +103,7 @@ namespace MarbleDrop
 			var file = File.ReadAllText("./Content/level1.json");
 			var document = JsonDocument.Parse(file);
 
-			puzzle = Puzzle.FromJSON(this,  document.RootElement);
+			puzzle = new Puzzle(this); //Puzzle.FromJSON(this,  document.RootElement);
 			puzzleDisplay = new PuzzleDisplay(this, grid, new Rectangle(
 				2,
 				2,

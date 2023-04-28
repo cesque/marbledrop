@@ -63,6 +63,21 @@ namespace MarbleDrop
 			return previousKeyboardState.IsKeyUp(key) && currentKeyboardState.IsKeyDown(key);
 		}
 
+		public bool IsKeyUntouched(Keys key)
+		{
+			return previousKeyboardState.IsKeyUp(key) && currentKeyboardState.IsKeyUp(key);
+		}
+
+		public bool IsKeyReleased(Keys key)
+		{
+			return previousKeyboardState.IsKeyDown(key) && currentKeyboardState.IsKeyUp(key);
+		}
+
+		public bool IsKeyHeld(Keys key)
+		{
+			return previousKeyboardState.IsKeyDown(key) && currentKeyboardState.IsKeyDown(key);
+		}
+
 		public MouseState GetMouse()
 		{
 			return currentMouseState;

@@ -84,13 +84,15 @@ namespace MarbleDrop.Puzzles.Components
 
 		public void ConnectFrom(ComponentPort fromPort, Vector2 to)
 		{
-			Segments.Add(new WireSegment(this, fromPort.Position, to));
+			this.ResourceType = fromPort.ResourceType;
+
+			Segments.Add(new WireSegment(this, fromPort.GridPosition, to));
 
 			Inputs.Clear();
 
 			var resourceTypeName = ResourceType.ToString().ToLower();
 
-			var newPort = new ComponentPort(this, PortType.INPUT, ResourceType, fromPort.Position, resourceTypeName + "/input");
+			var newPort = new ComponentPort(this, PortType.INPUT, ResourceType, fromPort.GridPosition, resourceTypeName + "/input");
 			newPort.Connect(fromPort);
 
 			Inputs.Add(newPort);
@@ -111,13 +113,13 @@ namespace MarbleDrop.Puzzles.Components
 		public void ConnectTo(ComponentPort toPort)
 		{
 			var last = Segments.Last();
-			Segments.Add(new WireSegment(this, last.End, toPort.Position));
+			Segments.Add(new WireSegment(this, last.End, toPort.GridPosition));
 
 			Outputs.Clear();
 
 			var resourceTypeName = ResourceType.ToString().ToLower();
 
-			var newPort = new ComponentPort(this, PortType.OUTPUT, ResourceType, toPort.Position, resourceTypeName + "/output");
+			var newPort = new ComponentPort(this, PortType.OUTPUT, ResourceType, toPort.GridPosition, resourceTypeName + "/output");
 			newPort.Connect(toPort);
 
 			Outputs.Add(newPort);

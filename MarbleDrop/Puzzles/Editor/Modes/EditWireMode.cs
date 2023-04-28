@@ -21,6 +21,9 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 		WireSegment draggedSegment;
 		(Vector2 Start, Vector2 End)? newDraggedSegmentEndpoints;
 
+		ComponentPort hoveredPort;
+		ComponentPort selectedPort;
+
 		public EditWireMode(PuzzleEditorContext context) : base(context) { }
 
 		public override void Enter()
@@ -46,6 +49,7 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 
 			hoveredWire = null;
 			hoveredSegment = null;
+			hoveredPort = null;
 
 			if (draggedSegment != null && puzzle.game.inputManager.IsRightMouseButtonReleased())
 			{
@@ -59,26 +63,38 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 
 			var mousePosition = puzzle.GetClampedMousePositionInGridSpace();
 
-			foreach (var wire in puzzle.Wires)
+			if (selectedPort == null)
 			{
-				foreach(var segment in wire.Segments)
+				// show hovered wire/segment and handle dragging start
+				foreach (var wire in puzzle.Wires)
 				{
-					var characters = segment.GetCharacters();
-
-					if (characters.Any(character => mousePosition.X == character.Position.X && mousePosition.Y == character.Position.Y))
+					foreach (var segment in wire.Segments)
 					{
-						// mouse is over wire
-						hoveredWire = wire;
-						hoveredSegment = segment;
+						var characters = segment.GetCharacters();
 
-						if (puzzle.game.inputManager.IsLeftMouseButtonPressed())
+						if (characters.Any(character => mousePosition.X == character.Position.X && mousePosition.Y == character.Position.Y))
 						{
-							StartDraggingSegment(segment);
+							// mouse is over wire
+							hoveredWire = wire;
+							hoveredSegment = segment;
+
+							if (puzzle.game.inputManager.IsLeftMouseButtonPressed())
+							{
+								if (puzzle.game.inputManager.IsKeyHeld(Microsoft.Xna.Framework.Input.Keys.LeftControl))
+								{
+									segment.Wire.Delete();
+								}
+								else
+								{
+									StartDraggingSegment(segment);
+								}
+							}
 						}
 					}
 				}
 			}
 
+			// drag wire segment
 			if (draggedSegment != null)
 			{
 				var isStartConnectedToPort = draggedSegment.IsFirst && draggedSegment.Wire.Inputs.Any(port => port.IsConnected);
@@ -141,7 +157,35 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 				{
 					Console.WriteLine(e.Message);
 				}
-		}
+			}
+
+			if (draggedSegment == null)
+			{
+				foreach (var component in puzzle.Components)
+				{
+					foreach (var port in component.Ports)
+					{
+						var position = port.GridPosition;
+						if (mousePosition == position)
+						{
+							hoveredPort = port;
+
+							if (selectedPort == null && puzzle.game.inputManager.IsLeftMouseButtonPressed() && !port.IsConnected)
+							{
+								StartConnectingPorts(port);
+							}
+						}
+					}
+				}
+			}
+
+			if (selectedPort != null)
+			{
+				if (puzzle.game.inputManager.IsLeftMouseButtonReleased())
+				{
+					StopConnectingPorts();
+				}
+			}
 		}
 
 		void StartDraggingSegment(WireSegment segment)
@@ -189,12 +233,11 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 
 			// consolidate co-linear segments
 			var newSegments = wire.Segments;
-			var tempSegments = new List<WireSegment>();
 			var didConsolidateThisTurn = false;
 
 			do
 			{
-				tempSegments = new List<WireSegment>();
+				var tempSegments = new List<WireSegment>();
 				didConsolidateThisTurn = false;
 
 				foreach (var segment in newSegments)
@@ -243,8 +286,60 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 			newDraggedSegmentEndpoints = null;
 		}
 
+		void StartConnectingPorts(ComponentPort port)
+		{
+			selectedPort = port;
+		}
+
+		void StopConnectingPorts()
+		{
+			var mousePosition = puzzle.GetClampedMousePositionInGridSpace();
+
+			var allConnectablePorts = new List<ComponentPort>();
+			foreach (var component in puzzle.Components)
+			{
+				foreach (var otherPort in component.Ports)
+				{
+					if (otherPort.ResourceType == selectedPort.ResourceType && otherPort.Type != selectedPort.Type)
+					{
+						allConnectablePorts.Add(otherPort);
+					}
+				}
+			}
+
+			foreach (var otherPort in allConnectablePorts)
+			{
+				if (otherPort.GridPosition == mousePosition)
+				{
+					AddWireBetweenPorts(selectedPort, otherPort);
+				}
+			}
+
+			selectedPort = null;
+		}
+
+		void AddWireBetweenPorts(ComponentPort from, ComponentPort to)
+		{
+			var actualFrom = from.Type == PortType.OUTPUT ? from : to;
+			var actualTo = to.Type == PortType.INPUT ? to : from;
+
+			var wire = new Wire(puzzle, actualFrom, actualTo);
+
+			puzzle.AddComponent(wire);
+
+			wire.Initialise();
+		}
+
 		void DrawAllComponentPorts(SpriteBatch spriteBatch)
 		{
+			var gridSize = new Vector2(puzzle.grid.CharacterWidth, puzzle.grid.CharacterHeight);
+
+			var circleSize = 5f;
+
+			var min = circleSize * 0.7f;
+			var max = circleSize;
+			var step = 1f;
+
 			foreach (var component in puzzle.Components)
 			{
 				component.DrawEditor(spriteBatch);
@@ -254,35 +349,52 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 					var componentWithPosition = component as PuzzleComponentWithPosition;
 					var screenBounds = componentWithPosition.GetScreenBounds();
 
-					var gridSize = new Vector2(puzzle.grid.CharacterWidth, puzzle.grid.CharacterHeight);
-					var circleSize = 5f;
-
-					var min = circleSize * 0.7f;
-					var max = circleSize;
-					var step = 1f;
-
-					foreach (var port in component.Inputs)
+					if (selectedPort == null || selectedPort.Type == PortType.OUTPUT)
 					{
-
-						var color = Color.GreenYellow * (port.IsConnected ? 1f : 0.5f);
-
-						for (var i = min; i <= max; i += step)
+						foreach (var port in component.Inputs)
 						{
-							MonoGame.Primitives2D.DrawCircle(spriteBatch, screenBounds.Location.ToVector2() + (port.Position * gridSize) + (gridSize / 2f), i, 16, color);
+							if (selectedPort != null && (port.IsConnected || port.ResourceType != selectedPort.ResourceType)) continue;
+
+							var color = Color.GreenYellow * (port.IsConnected ? 1f : 0.5f);
+							if (port == hoveredPort) color = Color.Gold;
+
+							for (var i = min; i <= max; i += step)
+							{
+								MonoGame.Primitives2D.DrawCircle(spriteBatch, screenBounds.Location.ToVector2() + (port.Position * gridSize) + (gridSize / 2f), i, 16, color);
+							}
 						}
 					}
 
-					foreach (var port in component.Outputs)
+					if (selectedPort == null || selectedPort.Type == PortType.INPUT)
 					{
-						var color = Color.CornflowerBlue * (port.IsConnected ? 1f : 0.5f);
-
-						for (var i = min; i <= max; i += step)
+						foreach (var port in component.Outputs)
 						{
-							MonoGame.Primitives2D.DrawCircle(spriteBatch, screenBounds.Location.ToVector2() + (port.Position * gridSize) + (gridSize / 2f), i, 16, color);
-						}
-					}
+							if (selectedPort != null && (port.IsConnected || port.ResourceType != selectedPort.ResourceType)) continue;
 
+							var color = Color.CornflowerBlue * (port.IsConnected ? 1f : 0.5f);
+							if (port == hoveredPort) color = Color.Gold;
+
+							for (var i = min; i <= max; i += step)
+							{
+								MonoGame.Primitives2D.DrawCircle(spriteBatch, screenBounds.Location.ToVector2() + (port.Position * gridSize) + (gridSize / 2f), i, 16, color);
+							}
+						}
+					}		
 				}
+			}
+
+			if (selectedPort != null)
+			{
+				var screenBounds = ((PuzzleComponentWithPosition)selectedPort.Component).GetScreenBounds();
+
+				var portCentre = screenBounds.Location.ToVector2() + (selectedPort.Position * gridSize) + (gridSize / 2f);
+
+				for (var i = min; i <= max; i += step)
+				{
+					MonoGame.Primitives2D.DrawCircle(spriteBatch, portCentre, i, 16, Color.HotPink);
+				}
+
+				MonoGame.Primitives2D.DrawLine(spriteBatch, portCentre, puzzle.game.inputManager.MousePosition, Color.HotPink);
 			}
 		}
 
