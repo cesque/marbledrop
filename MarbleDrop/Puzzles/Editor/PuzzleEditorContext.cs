@@ -71,8 +71,32 @@ namespace MarbleDrop.Puzzles
 		public void Draw(SpriteBatch spriteBatch)
 		{
 			currentMode.Draw(spriteBatch);
+		}
 
-			MonoGame.Primitives2D.FillRectangle(spriteBatch, new Rectangle(0, 0, 20, 20), Mode == PuzzleEditorMode.SELECT ? Color.GreenYellow : Color.Gold);
+		public void DrawCharacters(Grid grid)
+		{
+			var x = 1;
+			var y = puzzle.grid.Height - 1;
+
+			var modeString = Mode.ToString();
+
+			var indices = BitmapFont.ConvertStringToIndices($" MODE: { modeString } ");
+
+			var modeColors = new Dictionary<Editor.PuzzleEditorMode, string>()
+			{
+				{ Editor.PuzzleEditorMode.SELECT, "green" },
+				{ Editor.PuzzleEditorMode.EDITWIRE, "yellow" },
+			};
+
+			var foregroundColor = grid.Palette.Get("black");
+			var backgroundColor = grid.Palette.Get(modeColors[Mode]);
+
+			foreach (var index in indices)
+			{
+				var character = new GridCharacter(grid, index, new Vector2(x, y), foregroundColor, backgroundColor, 1000000);
+				var result = grid.TryAddCharacter(character);
+				x++;
+			}
 		}
 
 		public void DrawUI()

@@ -140,7 +140,6 @@ namespace MarbleDrop.Rendering
 
 			puzzle.Update(gameTime);
 
-
 			if (Editor.Enabled)
 			{
 				Editor.Update(gameTime);
@@ -163,6 +162,8 @@ namespace MarbleDrop.Rendering
 			{
 				grid.TryAddCharacter(character);
 			}
+
+			Editor.DrawCharacters(grid);
 		}
 
 		public void DrawRenderTarget(SpriteBatch spriteBatch)
@@ -170,7 +171,6 @@ namespace MarbleDrop.Rendering
 			game.GraphicsDevice.SetRenderTarget(RenderTarget);
 			game.GraphicsDevice.Clear(Color.Black);
 
-			/* --- draw all stuff to the render target --- */
 			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Matrix.CreateTranslation(-CameraPosition.X, -CameraPosition.Y, 0));
 
 			puzzle.DrawCharacters(spriteBatch);

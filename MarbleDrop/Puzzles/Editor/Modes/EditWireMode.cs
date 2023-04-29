@@ -498,6 +498,45 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 		public override void DrawUI()
 		{
 			base.DrawUI();
+
+			var headerColor = Color.Gold;
+
+			var screen = puzzle.game.GraphicsDevice.Viewport.Bounds;
+			var width = 300;
+			ImGui.SetNextWindowPos(new System.Numerics.Vector2(screen.Right - width, 0));
+			ImGui.SetNextWindowSize(new System.Numerics.Vector2(width, screen.Height));
+			ImGui.Begin("SELECT MODE");
+
+			ImGui.TextColored(new System.Numerics.Vector4(headerColor.R / 255.0f, headerColor.G / 255.0f, headerColor.B / 255.0f, headerColor.A / 255.0f), "CONTROLS:");
+
+			var flags = ImGuiTableFlags.BordersH;
+			ImGui.BeginTable($"select-mode-controls-table", 2, flags);
+
+			ImGui.TableNextRow();
+			ImGui.TableNextColumn();
+			ImGui.Text("Select/Drag");
+			ImGui.TableNextColumn();
+			ImGui.Text("LMB");
+
+			ImGui.TableNextRow();
+			ImGui.TableNextColumn();
+			ImGui.Text("Split wire");
+			ImGui.TableNextColumn();
+			ImGui.Text("Ctrl+LMB");
+
+			ImGui.TableNextRow();
+			ImGui.TableNextColumn();
+			ImGui.Text("Delete");
+			ImGui.TableNextColumn();
+			ImGui.Text("RMB");
+
+			ImGui.TableNextRow();
+			ImGui.TableNextColumn();
+			ImGui.Text("Switch to Component mode");
+			ImGui.TableNextColumn();
+			ImGui.Text("S");
+
+			ImGui.EndTable();
 		}
 	}
 }

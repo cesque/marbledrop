@@ -14,13 +14,13 @@ namespace MarbleDrop.Rendering
 
 		SparkWire = 150,
 		SparkWireCorners = 160,
-		Spark = 170,
 
 		Wire = 200,
 		WireCorners = 210,
 
 		Component = 300,
 
-		Marble = 400,
+		Spark = 400,
+		Marble = 410,
 	}
 }

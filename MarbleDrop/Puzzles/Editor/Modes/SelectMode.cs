@@ -357,6 +357,8 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 		{
 			base.DrawUI();
 
+			var headerColor = Color.Gold;
+
 			if (SelectedComponent != null)
 			{
 				SelectedComponent.DrawEditorUI(puzzle.display);
@@ -368,6 +370,35 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 				ImGui.SetNextWindowPos(new System.Numerics.Vector2(screen.Right - width, 0));
 				ImGui.SetNextWindowSize(new System.Numerics.Vector2(width, screen.Height));
 				ImGui.Begin("SELECT MODE");
+
+				ImGui.TextColored(new System.Numerics.Vector4(headerColor.R / 255.0f, headerColor.G / 255.0f, headerColor.B / 255.0f, headerColor.A / 255.0f), "CONTROLS:");
+
+				var flags = ImGuiTableFlags.BordersH;
+				ImGui.BeginTable($"select-mode-controls-table", 2, flags);
+
+				ImGui.TableNextRow();
+				ImGui.TableNextColumn();
+				ImGui.Text("Select/Drag");
+				ImGui.TableNextColumn();
+				ImGui.Text("LMB");
+
+				ImGui.TableNextRow();
+				ImGui.TableNextColumn();
+				ImGui.Text("Delete");
+				ImGui.TableNextColumn();
+				ImGui.Text("RMB");
+
+				ImGui.TableNextRow();
+				ImGui.TableNextColumn();
+				ImGui.Text("Switch to Wire mode");
+				ImGui.TableNextColumn();
+				ImGui.Text("W");
+
+				ImGui.EndTable();
+
+				ImGui.Dummy(new System.Numerics.Vector2(0f, 20f));
+
+				ImGui.TextColored(new System.Numerics.Vector4(headerColor.R / 255.0f, headerColor.G / 255.0f, headerColor.B / 255.0f, headerColor.A / 255.0f), "CREATE COMPONENT:");
 
 				// todo: maybe the name can go into the class as a static member?
 				var componentsButtons = new List<(string Name, Type Type)>()

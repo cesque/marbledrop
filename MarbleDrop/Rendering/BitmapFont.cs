@@ -45,5 +45,10 @@ namespace MarbleDrop.Rendering
 			spriteBatch.Draw(Globals.DebugTexture, new Rectangle(x * CharacterWidth, y * CharacterHeight, CharacterWidth, CharacterHeight), backgroundColor);
 			spriteBatch.Draw(map, new Rectangle(x * CharacterWidth, y * CharacterHeight, CharacterWidth, CharacterHeight), rectangle, foregroundColor);
 		}
+
+		public static List<int> ConvertStringToIndices(string s)
+		{
+			return s.ToCharArray().Select(c => (int)c).ToList();
+		}
 	}
 }

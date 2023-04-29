@@ -144,7 +144,7 @@ namespace MarbleDrop.Puzzles
 
 					var flags = ImGuiTableFlags.BordersOuter;
 
-					ImGui.BeginTable($"{ID}-{port.Name}-table", 2, flags);
+					ImGui.BeginTable($"{ ID }-{ port.Name }-table", 2, flags);
 
 					ImGui.TableNextRow();
 					ImGui.TableNextColumn();
