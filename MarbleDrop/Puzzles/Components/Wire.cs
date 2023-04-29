@@ -63,9 +63,7 @@ namespace MarbleDrop.Puzzles.Components
 		public Wire(Puzzle puzzle) : this(puzzle, new Guid().ToString()) { }
 
 		public Wire(Puzzle puzzle, ComponentPort from, ComponentPort to) : this(puzzle, new Guid().ToString()) {
-			var middle = new Vector2(from.GridPosition.X, to.GridPosition.Y);
-			ConnectFrom(from, middle);
-			ConnectTo(to);
+			ConnectPortsByDefaultPath(from, to);
 		}
 
 		public override void Initialise()
@@ -82,18 +80,20 @@ namespace MarbleDrop.Puzzles.Components
 			}
 		}
 
-		public void ConnectFrom(ComponentPort fromPort, Vector2 to)
+		public void ConnectFrom(ComponentPort from, Vector2 to)
 		{
-			this.ResourceType = fromPort.ResourceType;
+			if (Segments.Count > 0) throw new InvalidOperationException("can't ConnectFrom a wire which already has segments");
 
-			Segments.Add(new WireSegment(this, fromPort.GridPosition, to));
+			ResourceType = from.ResourceType;
+
+			Segments.Add(new WireSegment(this, from.GridPosition, to));
 
 			Inputs.Clear();
 
 			var resourceTypeName = ResourceType.ToString().ToLower();
 
-			var newPort = new ComponentPort(this, PortType.INPUT, ResourceType, fromPort.GridPosition, resourceTypeName + "/input");
-			newPort.Connect(fromPort);
+			var newPort = new ComponentPort(this, PortType.INPUT, ResourceType, from.GridPosition, resourceTypeName + "/input");
+			newPort.Connect(from);
 
 			Inputs.Add(newPort);
 		}
@@ -110,19 +110,65 @@ namespace MarbleDrop.Puzzles.Components
 			Outputs.Add(new ComponentPort(this, PortType.OUTPUT, ResourceType, to, resourceTypeName + "/output"));
 		}
 
-		public void ConnectTo(ComponentPort toPort)
+		public void ConnectTo(ComponentPort to)
 		{
 			var last = Segments.Last();
-			Segments.Add(new WireSegment(this, last.End, toPort.GridPosition));
+			Segments.Add(new WireSegment(this, last.End, to.GridPosition));
 
 			Outputs.Clear();
 
 			var resourceTypeName = ResourceType.ToString().ToLower();
 
-			var newPort = new ComponentPort(this, PortType.OUTPUT, ResourceType, toPort.GridPosition, resourceTypeName + "/output");
-			newPort.Connect(toPort);
+			var newPort = new ComponentPort(this, PortType.OUTPUT, ResourceType, to.GridPosition, resourceTypeName + "/output");
+			newPort.Connect(to);
 
 			Outputs.Add(newPort);
+		}
+
+		public void ConnectPortsByDefaultPath(ComponentPort from, ComponentPort to)
+		{
+			Segments.Clear();
+			var fromPosition = from?.GridPosition ?? Inputs.First().GridPosition;
+			var toPosition = to?.GridPosition ?? Outputs.First().GridPosition;
+
+			Inputs.Clear();
+			Outputs.Clear();
+
+			if (fromPosition.X == toPosition.X || fromPosition.Y == toPosition.Y)
+			{
+				Segments.Add(new WireSegment(this, fromPosition, toPosition));
+
+				//Inputs.Clear();
+				//Outputs.Clear();
+
+				//var resourceTypeName = ResourceType.ToString().ToLower();
+
+				//var newFromPort = new ComponentPort(this, PortType.OUTPUT, ResourceType, from.GridPosition, resourceTypeName + "/input");
+				//newFromPort.Connect(to);
+				//Outputs.Add(newFromPort);
+
+				//var newToPort = new ComponentPort(this, PortType.OUTPUT, ResourceType, to.GridPosition, resourceTypeName + "/output");
+				//newToPort.Connect(to);
+				//Outputs.Add(newToPort);
+			}
+			else
+			{
+				var middle = new Vector2(fromPosition.X, toPosition.Y);
+				Segments.Add(new WireSegment(this, fromPosition, middle));
+				Segments.Add(new WireSegment(this, middle, toPosition));
+
+				//ConnectFrom(from, middle);
+				//ConnectTo(to);
+			}
+
+			var resourceTypeName = ResourceType.ToString().ToLower();
+			var inputPort = new ComponentPort(this, PortType.OUTPUT, ResourceType, fromPosition, resourceTypeName + "/input");
+			var outputPort = new ComponentPort(this, PortType.OUTPUT, ResourceType, toPosition, resourceTypeName + "/input");
+
+			Inputs.Add(inputPort);
+			Outputs.Add(outputPort);
+
+			AutomaticallyConnectPorts();
 		}
 
 		public override List<GridCharacter> GetCharacters()

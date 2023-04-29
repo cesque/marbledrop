@@ -128,12 +128,11 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 					grabOffsetGrid = new Vector2((float)Math.Floor(tempGrabOffsetGrid.Value.X), (float)Math.Floor(tempGrabOffsetGrid.Value.Y));
 
 					var graphics = puzzle.game.GraphicsDevice;
-					var component = DraggedComponent;
 					dragPreview = new RenderTarget2D(graphics, puzzle.grid.Width * puzzle.grid.CharacterWidth, puzzle.Height * puzzle.grid.CharacterHeight);
 
 					var grid = new Grid(puzzle.game, puzzle.grid.Width, puzzle.grid.Height);
 
-					foreach (var character in component.GetCharacters())
+					foreach (var character in DraggedComponent.GetCharacters())
 					{
 						grid.TryAddCharacter(character);
 					}
@@ -148,7 +147,7 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 					spriteBatch.End();
 					graphics.SetRenderTarget(null);
 
-					DraggedComponent.Delete();
+					//DraggedComponent.Delete();
 				}
 
 				mouseDownPosition = null;
@@ -157,10 +156,14 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 
 		private void DropDraggedComponent(bool updatePosition)
 		{
-			puzzle.AddComponent(DraggedComponent);
+			//puzzle.AddComponent(DraggedComponent);
 
 			// todo: make drag+drop behaviour not horrible
 			var oldPosition = DraggedComponent.Position;
+			//var test = 
+			var connectedPorts = DraggedComponent.Ports.Where(port => port.IsConnected);
+			var connectedWires = connectedPorts.Select(port => port.ConnectedPort.Component as Components.Wire);
+			var connectedComponentPorts = connectedWires.Select(wire => (Wire: wire, Input: wire.Inputs.First().ConnectedPort, Output: wire.Outputs.First().ConnectedPort)).ToList();
 
 			if (updatePosition)
 			{
@@ -172,6 +175,11 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 				{
 					// todo: add error feedback for invalid drop location
 				}
+			}
+
+			foreach (var (wire, input, output) in connectedComponentPorts)
+			{
+				wire.ConnectPortsByDefaultPath(input, output);
 			}
 
 			DraggedComponent.PositionChanged(oldPosition, DraggedComponent.Position);
