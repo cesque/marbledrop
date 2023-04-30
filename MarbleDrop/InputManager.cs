@@ -38,6 +38,11 @@ namespace MarbleDrop
 			get { return MousePosition - (previousMouseState.Position.ToVector2() / game.screenScale); }
 		}
 
+		public float MouseScrollWheelDelta
+		{
+			get { return currentMouseState.ScrollWheelValue - previousMouseState.ScrollWheelValue;  }
+		}
+
 		public InputManager(Game1 game)
 		{
 			this.game = game;

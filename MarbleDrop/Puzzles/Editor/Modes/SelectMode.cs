@@ -233,8 +233,6 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 
 				//var screenBounds = DraggedComponent.GetScreenBounds();
 
-				Console.WriteLine(screenBounds);
-
 				var mousePosition = puzzle.game.inputManager.MousePosition;
 				var drawBounds = new Rectangle(
 					(int)(mousePosition.X + grabOffset.Value.X),
