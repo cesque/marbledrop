@@ -312,6 +312,7 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 				if (otherPort.GridPosition == mousePosition)
 				{
 					AddWireBetweenPorts(selectedPort, otherPort);
+					break;
 				}
 			}
 
@@ -332,7 +333,7 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 
 		void DrawAllComponentPorts(SpriteBatch spriteBatch)
 		{
-			var gridSize = new Vector2(puzzle.grid.CharacterWidth, puzzle.grid.CharacterHeight);
+			var gridSize = new Vector2(puzzle.grid.CharacterWidth, puzzle.grid.CharacterHeight) * puzzle.display.CameraZoom;
 
 			var circleSize = 5f;
 

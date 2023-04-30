@@ -61,14 +61,14 @@ namespace MarbleDrop.Puzzles
 
 		public Rectangle GetScreenBounds()
 		{
-			var offset = (puzzle.display.ScreenBounds.Location.ToVector2() - puzzle.display.CameraPosition);
+			var offset = (puzzle.display.ScreenBounds.Location.ToVector2() - (puzzle.display.CameraPosition * puzzle.display.CameraZoom));
 			var bounds = GetBounds();
 
 			return new Rectangle(
-				(int)((bounds.X * grid.CharacterWidth) + offset.X),
-				(int)((bounds.Y * grid.CharacterWidth) + offset.Y),
-				bounds.Width * grid.CharacterWidth,
-				bounds.Height * grid.CharacterWidth
+				(int)((bounds.X * grid.CharacterWidth * puzzle.display.CameraZoom) + offset.X),
+				(int)((bounds.Y * grid.CharacterHeight * puzzle.display.CameraZoom) + offset.Y),
+				(int)(bounds.Width * puzzle.grid.CharacterWidth * puzzle.display.CameraZoom),
+				(int)(bounds.Height * puzzle.grid.CharacterWidth * puzzle.display.CameraZoom)
 			);
 		}
 

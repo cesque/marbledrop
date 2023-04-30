@@ -126,7 +126,7 @@ namespace MarbleDrop.Rendering
 			var x = Math.Max(0, Math.Min(Width * CharacterWidth, position.X));
 			var y = Math.Max(0, Math.Min(Height * CharacterHeight, position.Y));
 
-			return ConvertPuzzleSpaceToGridSpace(new Vector2(x, y));
+			return ConvertPuzzleSpaceToGridSpaceNearest(new Vector2(x, y));
 		}
 
 		public bool Contains(Vector2 position)

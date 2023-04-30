@@ -123,7 +123,7 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 					// start dragging component
 					DraggedComponent = SelectedComponent as PuzzleComponentWithPosition;
 
-					grabOffset = (DraggedComponent.GetBounds().Location.ToVector2() * new Vector2(puzzle.grid.CharacterWidth, puzzle.grid.CharacterHeight)) - mouseDownPosition;
+					grabOffset = ((DraggedComponent.GetBounds().Location.ToVector2() * new Vector2(puzzle.grid.CharacterWidth, puzzle.grid.CharacterHeight)) - mouseDownPosition) * puzzle.display.CameraZoom;
 					var tempGrabOffsetGrid = grabOffset / new Vector2(puzzle.grid.CharacterWidth, puzzle.grid.CharacterHeight);
 					grabOffsetGrid = new Vector2((float)Math.Floor(tempGrabOffsetGrid.Value.X), (float)Math.Floor(tempGrabOffsetGrid.Value.Y));
 
@@ -231,18 +231,22 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 					bounds.Height * grid.CharacterHeight
 				);
 
+				//var screenBounds = DraggedComponent.GetScreenBounds();
+
+				Console.WriteLine(screenBounds);
+
 				var mousePosition = puzzle.game.inputManager.MousePosition;
 				var drawBounds = new Rectangle(
 					(int)(mousePosition.X + grabOffset.Value.X),
 					(int)(mousePosition.Y + grabOffset.Value.Y),
-					screenBounds.Width,
-					screenBounds.Height
+					(int)(screenBounds.Width * puzzle.display.CameraZoom),
+					(int)(screenBounds.Height * puzzle.display.CameraZoom)
 				);
 
 				spriteBatch.Draw(dragPreview, drawBounds, screenBounds, Color.White * 0.5f);
 
-				var gridSize = new Vector2(grid.CharacterWidth, grid.CharacterHeight);
-				var circleSize = 5f;
+				var gridSize = new Vector2(grid.CharacterWidth, grid.CharacterHeight) * puzzle.display.CameraZoom;
+				var circleSize = 5f * puzzle.display.CameraZoom;
 				var circleVec = new Vector2(circleSize, circleSize);
 
 				var min = circleSize * 0.7f;
@@ -251,7 +255,6 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 
 				foreach (var port in DraggedComponent.Inputs)
 				{
-
 					var color = Color.GreenYellow * (port.IsConnected ? 1f : 0.5f);
 
 					for (var i = min; i <= max; i += step)
@@ -280,8 +283,8 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 				var drawBounds = new Rectangle(
 					(int)(mousePosition.X),
 					(int)(mousePosition.Y),
-					screenBounds.Width,
-					screenBounds.Height
+					(int)(screenBounds.Width * puzzle.display.CameraZoom),
+					(int)(screenBounds.Height * puzzle.display.CameraZoom)
 				);
 
 				spriteBatch.Draw(newComponentPreview, drawBounds, screenBounds, Color.White * 0.5f);
@@ -302,7 +305,7 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 			{
 				MonoGame.Primitives2D.DrawRectangle(spriteBatch, screenBounds, Color.GreenYellow);
 
-				var gridSize = new Vector2(puzzle.grid.CharacterWidth, puzzle.grid.CharacterHeight);
+				var gridSize = new Vector2(puzzle.grid.CharacterWidth, puzzle.grid.CharacterHeight) * puzzle.display.CameraZoom;
 
 				for (var x = screenBounds.Left; x < screenBounds.Right; x += (int)gridSize.X)
 				{
@@ -324,7 +327,7 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 					);
 				}
 
-				var circleSize = 5f;
+				var circleSize = 5f * puzzle.display.CameraZoom;
 
 				var min = circleSize * 0.7f;
 				var max = circleSize;
@@ -332,7 +335,6 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 
 				foreach (var port in component.Inputs)
 				{
-
 					var color = Color.GreenYellow * (port.IsConnected ? 1f : 0.5f);
 
 					for (var i = min; i <= max; i += step)

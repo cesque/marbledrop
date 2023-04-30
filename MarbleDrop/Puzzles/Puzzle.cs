@@ -63,12 +63,12 @@ namespace MarbleDrop.Puzzles
 		// converts display space -> puzzle space
 		public Vector2 ConvertDisplaySpaceToPuzzleSpace(Vector2 position)
 		{
-			return position + display.CameraPosition;
+			return (position + display.CameraPosition) / display.CameraZoom;
 		}
 
 		public Vector2 ConvertPuzzleSpaceToDisplaySpace(Vector2 position)
 		{
-			return position - display.CameraPosition;
+			return (position - display.CameraPosition) * display.CameraZoom;
 		}
 
 		public Vector2 GetMousePositionInPuzzleSpace()

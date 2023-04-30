@@ -239,10 +239,10 @@ namespace MarbleDrop.Puzzles.Components
 
 		public override void DrawEditor(SpriteBatch spritebatch)
 		{
-			var gridSize = new Vector2(grid.CharacterWidth, grid.CharacterHeight);
-			var offset = (puzzle.display.ScreenBounds.Location.ToVector2() - puzzle.display.CameraPosition);
+			var gridSize = new Vector2(grid.CharacterWidth, grid.CharacterHeight) * puzzle.display.CameraZoom;
+			var offset = (puzzle.display.ScreenBounds.Location.ToVector2() - (puzzle.display.CameraPosition * puzzle.display.CameraZoom));
 
-			var circleSize = 5f;
+			var circleSize = 5f * puzzle.display.CameraZoom;
 			var circleVec = new Vector2(circleSize, circleSize);
 
 			var disconnectedLerpAmount = (float)Math.Sin((flashTimer / flashTimerMax) * (Math.PI * 2));

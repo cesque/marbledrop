@@ -12,6 +12,8 @@ namespace MarbleDrop.Rendering
 	public class PuzzleDisplay
 	{
 		public Vector2 CameraPosition;
+		public float CameraZoom = 0.5f;
+
 		public RenderTarget2D RenderTarget;
 		public Rectangle Bounds;
 		public PuzzleEditorContext Editor;
@@ -171,7 +173,12 @@ namespace MarbleDrop.Rendering
 			game.GraphicsDevice.SetRenderTarget(RenderTarget);
 			game.GraphicsDevice.Clear(Color.Black);
 
-			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Matrix.CreateTranslation(-CameraPosition.X, -CameraPosition.Y, 0));
+			var matrix = Matrix.Multiply(
+				Matrix.CreateTranslation(-CameraPosition.X, -CameraPosition.Y, 0),
+				Matrix.CreateScale(CameraZoom)
+			);
+
+			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, matrix);
 
 			puzzle.DrawCharacters(spriteBatch);
 			//spriteBatch.Draw(Globals.DebugTexture, new Rectangle(0, 0, bounds.Width, bounds.Height), Color.Magenta);
