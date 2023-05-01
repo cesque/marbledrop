@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 
 namespace MarbleDrop.Puzzles
 {
@@ -124,6 +125,20 @@ namespace MarbleDrop.Puzzles
 
 		public void Save()
 		{
+			if(FileName == null || FileName.Length == 0)
+			{
+				if(Name == null || Name.Length == 0) Name = new Guid().ToString();
+
+				var slugifyRegex = new Regex(@"\W");
+				var duplicateHyphensRegex = new Regex(@"-+");
+
+				var slug = Name.ToLower();
+				slug = slugifyRegex.Replace(slug, "-");
+				slug = duplicateHyphensRegex.Replace(slug, "-");
+
+				FileName = slug;
+			}
+
 			File.WriteAllText(FileName, ToJSON());
 		}
 
