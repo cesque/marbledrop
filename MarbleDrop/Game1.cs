@@ -22,7 +22,7 @@ namespace MarbleDrop
 		RenderTarget2D renderTarget;
 		internal float screenScale = 1f;
 
-		ImGUIRenderer imguiRenderer;
+		ImGuiRenderer imguiRenderer;
 
 		Grid grid;
 
@@ -49,7 +49,7 @@ namespace MarbleDrop
 		protected override void Initialize()
 		{
 			// TODO: Add your initialization logic here
-			imguiRenderer = new ImGUIRenderer(this).Initialize().RebuildFontAtlas();
+			imguiRenderer = new ImGuiRenderer(this).Initialize().RebuildFontAtlas();
 
 			base.Initialize();
 		}
