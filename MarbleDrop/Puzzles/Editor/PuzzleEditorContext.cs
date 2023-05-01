@@ -49,6 +49,7 @@ namespace MarbleDrop.Puzzles
 			{
 				{ PuzzleEditorMode.SELECT, new SelectMode(this) },
 				{ PuzzleEditorMode.EDITWIRE, new EditWireMode(this) },
+				{ PuzzleEditorMode.EDITPUZZLEINFO, new EditPuzzleInfoMode(this) },
 			};
 
 			Mode = PuzzleEditorMode.SELECT;
@@ -65,6 +66,10 @@ namespace MarbleDrop.Puzzles
 			else if (puzzle.game.inputManager.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.W))
 			{
 				Mode = PuzzleEditorMode.EDITWIRE;
+			}
+			else if (puzzle.game.inputManager.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.Q))
+			{
+				Mode = PuzzleEditorMode.EDITPUZZLEINFO;
 			}
 		}
 
@@ -86,6 +91,7 @@ namespace MarbleDrop.Puzzles
 			{
 				{ Editor.PuzzleEditorMode.SELECT, "green" },
 				{ Editor.PuzzleEditorMode.EDITWIRE, "yellow" },
+				{ Editor.PuzzleEditorMode.EDITPUZZLEINFO, "magenta" },
 			};
 
 			var foregroundColor = grid.Palette.Get("black");

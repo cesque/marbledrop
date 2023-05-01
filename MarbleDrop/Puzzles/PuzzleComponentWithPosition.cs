@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
 using ImGuiNET;
+using System.Text.Json.Nodes;
 
 namespace MarbleDrop.Puzzles
 {
@@ -211,6 +212,19 @@ namespace MarbleDrop.Puzzles
 			var y = position.GetProperty("y").GetInt32();
 
 			component.Position = new Vector2(x, y);
+		}
+
+		public override JsonObject ToJSON()
+		{
+			var json = base.ToJSON();
+			var data = json["data"] as JsonObject;
+
+			var position = new JsonObject();
+			position.Add("x", Position.X);
+			position.Add("y", Position.Y);
+			data.Add("position", position);
+
+			return json;
 		}
 	}
 }

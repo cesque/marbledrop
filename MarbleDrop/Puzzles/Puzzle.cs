@@ -5,10 +5,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
+using System.Text.Json.Nodes;
 
 namespace MarbleDrop.Puzzles
 {
@@ -26,7 +26,9 @@ namespace MarbleDrop.Puzzles
 		public List<PuzzleComponent> Components;
 		public List<Wire> Wires => Components.Where(component => component is Wire).Select(component => component as Wire).ToList();
 
+		public string ID;
 		public string Name;
+		public string FileName;
 
 		float debugTimer;
 		List<PuzzleComponent> componentsReadyForDeletion;
@@ -109,11 +111,27 @@ namespace MarbleDrop.Puzzles
 			componentsReadyForDeletion.Add(component);
 		}
 
+		public static Puzzle Load(Game1 game, string fileName)
+		{
+			var file = File.ReadAllText(fileName);
+			var document = JsonDocument.Parse(file);
+
+			var puzzle = FromJSON(game, document.RootElement);
+			puzzle.FileName = fileName;
+
+			return puzzle;
+		}
+
+		public void Save()
+		{
+			File.WriteAllText(FileName, ToJSON());
+		}
 
 		public static Puzzle FromJSON(Game1 game, JsonElement element)
 		{
 			var puzzle = new Puzzle(game);
 
+			puzzle.ID = element.GetProperty("id").GetString();
 			puzzle.Name = element.GetProperty("name").GetString();
 
 			Console.WriteLine("loading: " + puzzle.Name);
@@ -126,16 +144,16 @@ namespace MarbleDrop.Puzzles
 				var type = componentJSON.GetProperty("type").GetString();
 				switch (type)
 				{
-					case "wire":
+					case Wire.TypeName:
 						component = Wire.FromJSON(puzzle, componentJSON);
 						break;
-					case "buffer":
+					case BufferComponent.TypeName:
 						component = BufferComponent.FromJSON(puzzle, componentJSON);
 						break;
-					case "switch":
+					case SwitchComponent.TypeName:
 						component = SwitchComponent.FromJSON(puzzle, componentJSON);
 						break;
-					case "playerspawner":
+					case PlayerMarbleSpawnerComponent.TypeName:
 						component = PlayerMarbleSpawnerComponent.FromJSON(puzzle, componentJSON);
 						break;
 				}
@@ -224,6 +242,25 @@ namespace MarbleDrop.Puzzles
 			}
 
 			return puzzle;
+		}
+	
+		public string ToJSON()
+		{
+			var json = new JsonObject();
+			json.Add("id", ID);
+			json.Add("name", Name);
+
+			var componentsArray = new JsonArray();
+			foreach (var component in Components)
+			{
+				componentsArray.Add(component.ToJSON());
+			}
+			json.Add("components", componentsArray);
+
+			var options = new JsonSerializerOptions();
+			options.WriteIndented = true;
+
+			return json.ToJsonString(options);
 		}
 	}
 }

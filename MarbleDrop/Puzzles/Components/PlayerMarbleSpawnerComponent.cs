@@ -6,12 +6,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 namespace MarbleDrop.Puzzles.Components
 {
 	class PlayerMarbleSpawnerComponent : PuzzleComponentWithPosition
 	{
+		public new const string TypeName = "playerspawner";
+
 		List<GridCharacter> layout = new List<GridCharacter>();
 
 		public PlayerMarbleSpawnerComponent(Puzzle puzzle, string id) : base(puzzle, id)
@@ -95,6 +98,13 @@ namespace MarbleDrop.Puzzles.Components
 			PuzzleComponentWithPosition.PopulateFromJSON(component, element);
 
 			return component;
+		}
+
+		public override JsonObject ToJSON()
+		{
+			var json = base.ToJSON();
+			json["type"] = TypeName;
+			return json;
 		}
 	}
 }

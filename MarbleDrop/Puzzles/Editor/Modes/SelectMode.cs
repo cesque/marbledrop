@@ -357,7 +357,7 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 		{
 			base.DrawUI();
 
-			var headerColor = Color.Gold;
+			var headerColor = Color.Gold.ToVector4().ToNumerics();
 
 			if (SelectedComponent != null)
 			{
@@ -371,7 +371,7 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 				ImGui.SetNextWindowSize(new System.Numerics.Vector2(width, screen.Height));
 				ImGui.Begin("SELECT MODE");
 
-				ImGui.TextColored(new System.Numerics.Vector4(headerColor.R / 255.0f, headerColor.G / 255.0f, headerColor.B / 255.0f, headerColor.A / 255.0f), "CONTROLS:");
+				ImGui.TextColored(headerColor, "CONTROLS:");
 
 				var flags = ImGuiTableFlags.BordersH;
 				ImGui.BeginTable($"select-mode-controls-table", 2, flags);
@@ -398,7 +398,7 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 
 				ImGui.Dummy(new System.Numerics.Vector2(0f, 20f));
 
-				ImGui.TextColored(new System.Numerics.Vector4(headerColor.R / 255.0f, headerColor.G / 255.0f, headerColor.B / 255.0f, headerColor.A / 255.0f), "CREATE COMPONENT:");
+				ImGui.TextColored(headerColor, "CREATE COMPONENT:");
 
 				// todo: maybe the name can go into the class as a static member?
 				var componentsButtons = new List<(string Name, Type Type)>()

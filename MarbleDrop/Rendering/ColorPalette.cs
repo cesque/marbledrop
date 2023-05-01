@@ -3,8 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MarbleDrop.Rendering
 {
@@ -56,7 +54,6 @@ namespace MarbleDrop.Rendering
 				return Get("white");
 			}
 		}
-
 
 		public static ColorPalette Load(string assetName)
 		{

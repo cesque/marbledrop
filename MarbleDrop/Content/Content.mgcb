@@ -23,6 +23,9 @@
 #begin level1.json
 /copy:level1.json
 
+#begin level2.json
+/copy:level2.json
+
 #begin pico-8.txt
 /copy:pico-8.txt
 

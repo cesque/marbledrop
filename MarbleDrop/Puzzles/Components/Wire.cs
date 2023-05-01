@@ -9,11 +9,14 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
+using System.Text.Json.Nodes;
 
 namespace MarbleDrop.Puzzles.Components
 {
 	public class Wire : PuzzleComponent
 	{
+		public new const string TypeName = "wire";
+
 		public float Speed;
 		public List<WireSegment> Segments;
 		public ResourceType ResourceType;
@@ -162,8 +165,8 @@ namespace MarbleDrop.Puzzles.Components
 			}
 
 			var resourceTypeName = ResourceType.ToString().ToLower();
-			var inputPort = new ComponentPort(this, PortType.OUTPUT, ResourceType, fromPosition, resourceTypeName + "/input");
-			var outputPort = new ComponentPort(this, PortType.OUTPUT, ResourceType, toPosition, resourceTypeName + "/input");
+			var inputPort = new ComponentPort(this, PortType.INPUT, ResourceType, fromPosition, resourceTypeName + "/input");
+			var outputPort = new ComponentPort(this, PortType.OUTPUT, ResourceType, toPosition, resourceTypeName + "/output");
 
 			Inputs.Add(inputPort);
 			Outputs.Add(outputPort);
@@ -342,6 +345,45 @@ namespace MarbleDrop.Puzzles.Components
 
 
 			return component;
+		}
+		public override JsonObject ToJSON()
+		{
+			var json = base.ToJSON();
+			json["type"] = TypeName;
+
+			var data = json["data"] as JsonObject;
+
+			var resourceTypeStrings = new Dictionary<ResourceType, string>()
+			{
+				{ ResourceType.MARBLE, "marble" },
+				{ ResourceType.SPARK, "spark" },
+			};
+
+			if (ResourceType != ResourceType.MARBLE)
+			{
+				data.Add("resourceType", resourceTypeStrings[ResourceType]);
+			}
+
+			var points = new JsonArray();
+
+			var start = Segments.First().Start;
+			var startPoint = new JsonObject();
+			startPoint.Add("x", start.X);
+			startPoint.Add("y", start.Y);
+			points.Add(startPoint);
+
+			foreach (var segment in Segments)
+			{
+				var end = segment.End;
+				var point = new JsonObject();
+				point.Add("x", end.X);
+				point.Add("y", end.Y);
+				points.Add(point);
+			}
+
+			data.Add("points", points);
+
+			return json;
 		}
 	}
 }

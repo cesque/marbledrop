@@ -30,6 +30,7 @@ namespace MarbleDrop.Puzzles.Editor
 
 	public enum PuzzleEditorMode
 	{
+		EDITPUZZLEINFO,
 		SELECT,
 		EDITWIRE,
 	}

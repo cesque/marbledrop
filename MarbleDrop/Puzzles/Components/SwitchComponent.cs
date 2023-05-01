@@ -6,12 +6,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 namespace MarbleDrop.Puzzles.Components
 {
 	class SwitchComponent : PuzzleComponentWithPosition
 	{
+		public new const string TypeName = "switch";
+
 		public List<(Marble marble, float age, int output)> Marbles;
 
 		Vector2 marblePosition = new Vector2(1, 1);
@@ -133,6 +136,13 @@ namespace MarbleDrop.Puzzles.Components
 			PuzzleComponentWithPosition.PopulateFromJSON(component, element);
 
 			return component;
+		}
+
+		public override JsonObject ToJSON()
+		{
+			var json = base.ToJSON();
+			json["type"] = TypeName;
+			return json;
 		}
 	}
 }

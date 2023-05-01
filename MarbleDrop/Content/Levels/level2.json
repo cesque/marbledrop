@@ -1,0 +1,184 @@
+﻿{
+  "id": "6ac7cb5c-fda1-4b00-a2e5-9176d6f153b9",
+  "name": "test level",
+  "components": [
+    {
+      "type": "playerspawner",
+      "id": "bf2fd12f-bfee-4bc2-8eea-eb1c44789c5b",
+      "connections": [
+        {
+          "component": "fce54acd-7e7b-4153-b79d-a74093d5805a"
+        }
+      ],
+      "data": {
+        "position": {
+          "x": 4,
+          "y": 4
+        }
+      }
+    },
+    {
+      "type": "switch",
+      "id": "fa174abe-ad7f-44f6-b776-1ab3ff471a9f",
+      "connections": [
+        {
+          "output": "marble/top",
+          "component": "184e6cce-9b10-4fd1-819e-ecf45f6747a8"
+        },
+        {
+          "output": "marble/bottom",
+          "component": "4f273ac4-44ab-4e86-8039-b86ec99a22a0"
+        }
+      ],
+      "data": {
+        "position": {
+          "x": 24,
+          "y": 15
+        }
+      }
+    },
+    {
+      "type": "buffer",
+      "id": "8ceb88f5-967f-4db8-8538-76b6eeeb351f",
+      "connections": [
+        {
+          "output": "marble/output",
+          "component": "2053248f-74a2-4c21-8e0e-3765332b187c"
+        },
+        {
+          "output": "spark/bottom",
+          "component": "f819c315-fb4a-4676-bbbe-9100391df54a"
+        }
+      ],
+      "data": {
+        "position": {
+          "x": 38,
+          "y": 9
+        }
+      }
+    },
+    {
+      "type": "wire",
+      "id": "fce54acd-7e7b-4153-b79d-a74093d5805a",
+      "connections": [
+        {
+          "component": "fa174abe-ad7f-44f6-b776-1ab3ff471a9f"
+        }
+      ],
+      "data": {
+        "points": [
+          {
+            "x": 8,
+            "y": 6
+          },
+          {
+            "x": 20,
+            "y": 6
+          },
+          {
+            "x": 20,
+            "y": 16
+          },
+          {
+            "x": 23,
+            "y": 16
+          }
+        ]
+      }
+    },
+    {
+      "type": "wire",
+      "id": "184e6cce-9b10-4fd1-819e-ecf45f6747a8",
+      "connections": [
+        {
+          "component": "8ceb88f5-967f-4db8-8538-76b6eeeb351f"
+        }
+      ],
+      "data": {
+        "points": [
+          {
+            "x": 24,
+            "y": 14
+          },
+          {
+            "x": 24,
+            "y": 10
+          },
+          {
+            "x": 37,
+            "y": 10
+          }
+        ]
+      }
+    },
+    {
+      "type": "wire",
+      "id": "2053248f-74a2-4c21-8e0e-3765332b187c",
+      "connections": [],
+      "data": {
+        "points": [
+          {
+            "x": 43,
+            "y": 10
+          },
+          {
+            "x": 43,
+            "y": 6
+          },
+          {
+            "x": 55,
+            "y": 6
+          }
+        ]
+      }
+    },
+    {
+      "type": "wire",
+      "id": "4f273ac4-44ab-4e86-8039-b86ec99a22a0",
+      "connections": [],
+      "data": {
+        "points": [
+          {
+            "x": 24,
+            "y": 18
+          },
+          {
+            "x": 24,
+            "y": 24
+          },
+          {
+            "x": 55,
+            "y": 24
+          }
+        ]
+      }
+    },
+    {
+      "type": "wire",
+      "id": "f819c315-fb4a-4676-bbbe-9100391df54a",
+      "connections": [
+        {
+          "output": "spark/output",
+          "component": "fa174abe-ad7f-44f6-b776-1ab3ff471a9f"
+        }
+      ],
+      "data": {
+        "resourceType": "spark",
+        "points": [
+          {
+            "x": 40,
+            "y": 12
+          },
+          {
+            "x": 40,
+            "y": 16
+          },
+          {
+            "x": 26,
+            "y": 16
+          }
+        ]
+      }
+    }
+  ]
+}

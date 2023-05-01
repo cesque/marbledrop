@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -13,6 +14,8 @@ namespace MarbleDrop.Puzzles
 {
 	public abstract class PuzzleComponent
 	{
+		public const string TypeName = "unknowncomponent";
+
 		internal Puzzle puzzle;
 		internal Game1 game;
 		internal Grid grid;
@@ -140,6 +143,39 @@ namespace MarbleDrop.Puzzles
 			component.ID = id;
 
 			var data = element.GetProperty("data");
+		}
+
+		public virtual JsonObject ToJSON()
+		{
+			var json = new JsonObject();
+			json.Add("type", TypeName);
+			json.Add("id", ID);
+
+			var connections = new JsonArray();
+
+			var shouldSpecifyOutput = Outputs.Count > 1 || Outputs.First().ResourceType != ResourceType.MARBLE;
+
+			foreach (var port in Outputs)
+			{
+				Console.WriteLine(port.Name);
+				if (!port.IsConnected) continue;
+
+				var connection = new JsonObject();
+
+				var shouldSpecifyInput = port.ConnectedPort.Component.Inputs.Where(other => other.ResourceType == port.ResourceType).Count() > 1;
+
+				if (shouldSpecifyOutput) connection.Add("output", port.Name);
+				connection.Add("component", port.ConnectedPort.Component.ID);
+				if (shouldSpecifyInput) connection.Add("input", port.ConnectedPort.Name);
+
+				connections.Add(connection);
+			}
+
+			json.Add("connections", connections);
+
+			json.Add("data", new JsonObject());
+
+			return json;
 		}
 	}
 }

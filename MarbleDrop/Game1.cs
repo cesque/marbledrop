@@ -97,13 +97,11 @@ namespace MarbleDrop
 
 			renderTarget = new RenderTarget2D(GraphicsDevice, (int)gridSize.Width, (int)gridSize.Height);
 
-
 			/* --- */
 
-			var file = File.ReadAllText("./Content/level1.json");
-			var document = JsonDocument.Parse(file);
+			var filename = "./Content/Levels/level3.json";
+			puzzle = Puzzle.Load(this, filename);
 
-			puzzle = Puzzle.FromJSON(this,  document.RootElement);
 			puzzleDisplay = new PuzzleDisplay(this, grid, new Rectangle(
 				2,
 				2,
