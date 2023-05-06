@@ -1,4 +1,5 @@
 ﻿using MarbleDrop.Puzzles.Components;
+using MarbleDrop.Puzzles.Components.WorldMap;
 using MarbleDrop.Puzzles.Resources;
 using MarbleDrop.Rendering;
 using Microsoft.Xna.Framework;
@@ -159,6 +160,11 @@ namespace MarbleDrop.Puzzles
 				var type = componentJSON.GetProperty("type").GetString();
 				switch (type)
 				{
+					// map components
+					case MapLevelComponent.TypeName:
+						component = MapLevelComponent.FromJSON(puzzle, componentJSON);
+						break;
+					// puzzle components
 					case Wire.TypeName:
 						component = Wire.FromJSON(puzzle, componentJSON);
 						break;

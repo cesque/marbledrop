@@ -403,9 +403,12 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 				// todo: maybe the name can go into the class as a static member?
 				var componentsButtons = new List<(string Name, Type Type)>()
 				{
+					// world map
+					(Name: "World Map Level", Type: typeof(Components.WorldMap.MapLevelComponent)),
+					// puzzle
 					(Name: "Buffer", Type: typeof(Components.BufferComponent)),
 					(Name: "Switch", Type: typeof(Components.SwitchComponent)),
-					(Name: "Marble Spawner", Type: typeof(Components.PlayerMarbleSpawnerComponent)),
+					(Name: "Marble Spawner", Type: typeof(Components.PlayerMarbleSpawnerComponent)),		
 				};
 
 				foreach (var button in componentsButtons)

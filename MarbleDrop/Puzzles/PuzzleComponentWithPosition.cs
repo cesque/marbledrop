@@ -103,7 +103,7 @@ namespace MarbleDrop.Puzzles
 			ImGui.SetNextWindowSize(new System.Numerics.Vector2(width, screen.Height));
 			ImGui.Begin(ID);
 
-			ImGui.BeginTable($"{ID}-data", 2);
+			ImGui.BeginTable($"{ ID }-data", 2);
 			ImGui.TableNextRow();
 			ImGui.TableNextColumn();
 			ImGui.Text("Type");
@@ -114,7 +114,7 @@ namespace MarbleDrop.Puzzles
 			ImGui.TableNextColumn();
 			ImGui.Text("Position");
 			ImGui.TableNextColumn();
-			ImGui.Text($"X: {bounds.X}, Y: {bounds.Y}");
+			ImGui.Text($"X: { bounds.X }, Y: { bounds.Y }");
 			ImGui.EndTable();
 
 			ImGui.Dummy(new System.Numerics.Vector2(0f, 20f));
@@ -170,7 +170,7 @@ namespace MarbleDrop.Puzzles
 					ImGui.Text("Position");
 					ImGui.TableNextColumn();
 					var portPosition = port.Position;
-					ImGui.Text($"X: {portPosition.X}, Y: {portPosition.Y}");
+					ImGui.Text($"X: { portPosition.X }, Y: { portPosition.Y }");
 
 					ImGui.TableNextRow();
 					ImGui.TableNextColumn();
@@ -178,7 +178,7 @@ namespace MarbleDrop.Puzzles
 					ImGui.TableNextColumn();
 					ImGui.BeginDisabled();
 					var isConnected = port.IsConnected;
-					ImGui.Checkbox($"##{ID}-{port.Name}-connected", ref isConnected);
+					ImGui.Checkbox($"##{ ID }-{ port.Name }-connected", ref isConnected);
 					ImGui.EndDisabled();
 
 					ImGui.EndTable();

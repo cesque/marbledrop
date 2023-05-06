@@ -95,6 +95,7 @@ namespace MarbleDrop.Rendering
 		{
 			this.puzzle = puzzle;
 			puzzle.display = this;
+			Editor = new PuzzleEditorContext(this);
 		}
 
 		public void ZoomIn()
@@ -202,6 +203,11 @@ namespace MarbleDrop.Rendering
 				else if(scrollWheelDelta < 0)
 				{
 					ZoomOut();
+				}
+
+				if (game.inputManager.IsKeyReleased(Microsoft.Xna.Framework.Input.Keys.OemPipe))
+				{
+					Editor.Enabled = !Editor.Enabled;
 				}
 			}
 

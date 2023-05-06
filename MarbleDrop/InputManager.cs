@@ -61,6 +61,11 @@ namespace MarbleDrop
 
 			previousMouseState = currentMouseState;
 			currentMouseState = Mouse.GetState(game.Window);
+
+			//currentKeyboardState.GetPressedKeys().ToList().ForEach(key =>
+			//{
+			//	Console.WriteLine(key.ToString());
+			//});
 		}
 
 		public bool IsKeyPressed(Keys key)
