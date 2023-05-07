@@ -193,12 +193,12 @@ namespace MarbleDrop.Rendering
 				{
 					var character = Characters[x, y];
 
-					MonoGame.Primitives2D.FillRectangle(spriteBatch, new Rectangle(
-						x * CharacterWidth,
-						y * CharacterHeight,
-						CharacterWidth,
-						CharacterHeight
-					), (x + y) % 2 == 0 ? testGridForegroundColor : testGridBackgroundColor);
+					//MonoGame.Primitives2D.FillRectangle(spriteBatch, new Rectangle(
+					//	x * CharacterWidth,
+					//	y * CharacterHeight,
+					//	CharacterWidth,
+					//	CharacterHeight
+					//), (x + y) % 2 == 0 ? testGridForegroundColor : testGridBackgroundColor);
 
 					if (character != null)
 					{

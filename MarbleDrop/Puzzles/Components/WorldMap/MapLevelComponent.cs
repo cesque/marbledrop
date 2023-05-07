@@ -32,18 +32,9 @@ namespace MarbleDrop.Puzzles.Components.WorldMap
 			}
 		}
 
-		bool _isValid = false;
-		bool IsValid
-		{
-			get { return _isValid; }
-			set {
-				_isValid = value;
-				var color = value ? "white" : "red";
-				UpdateLayout();
-			}
-		}
+		bool IsValid = false;
 
-		List<GridCharacter> layout;
+		Color foregroundColor = Color.DarkCyan;
 
 		public MapLevelComponent(Puzzle puzzle, string id) : base(puzzle, id)
 		{
@@ -63,34 +54,42 @@ namespace MarbleDrop.Puzzles.Components.WorldMap
 			FileName = null;
 		}
 
-		void UpdateLayout()
-		{
-			var backgroundColor = IsValid ? "white" : "red";
-			layout = new List<GridCharacter>()
-			{
-				new GridCharacter(grid, 16, Position + new Vector2(2, 1), grid.Palette.Get(backgroundColor), grid.Palette.Get("black"), Priority.Component),
-				new GridCharacter(grid, 17, Position + new Vector2(0, 1), grid.Palette.Get(backgroundColor), grid.Palette.Get("black"), Priority.Component),
-				new GridCharacter(grid, 30, Position + new Vector2(1, 0), grid.Palette.Get(backgroundColor), grid.Palette.Get("black"), Priority.Component),
-				new GridCharacter(grid, 31, Position + new Vector2(1, 2), grid.Palette.Get(backgroundColor), grid.Palette.Get("black"), Priority.Component),
-
-				new GridCharacter(grid, 3, Position + new Vector2(1, 1), grid.Palette.Get("magenta"), grid.Palette.Get("black"), Priority.Component),
-			};
-		}
-
 		internal override void PositionChanged(Vector2 oldPosition, Vector2 newPosition)
 		{
 			base.PositionChanged(oldPosition, newPosition);
-			UpdateLayout();
 		}
 
 		public override void Update(GameTime gameTime)
 		{
+			foregroundColor = puzzle.grid.Palette.Get("grey");
 
+			if (!puzzle.display.Editor.Enabled && IsMouseOver())
+			{
+				foregroundColor = puzzle.grid.Palette.Get("white");
+
+				if (game.inputManager.IsLeftMouseButtonReleased())
+				{
+					LoadPuzzle();
+				}
+			}
+
+			if (!IsValid)
+			{
+				foregroundColor = puzzle.grid.Palette.Get("red");
+			}
 		}
 
 		public override List<GridCharacter> GetCharacters()
 		{
-			return layout;
+			return new List<GridCharacter>()
+			{
+				new GridCharacter(grid, 16, Position + new Vector2(2, 1), foregroundColor, grid.Palette.Get("black"), Priority.Component),
+				new GridCharacter(grid, 17, Position + new Vector2(0, 1), foregroundColor, grid.Palette.Get("black"), Priority.Component),
+				new GridCharacter(grid, 30, Position + new Vector2(1, 0), foregroundColor, grid.Palette.Get("black"), Priority.Component),
+				new GridCharacter(grid, 31, Position + new Vector2(1, 2), foregroundColor, grid.Palette.Get("black"), Priority.Component),
+
+				new GridCharacter(grid, 3, Position + new Vector2(1, 1), grid.Palette.Get("magenta"), grid.Palette.Get("black"), Priority.Component),
+			};
 		}
 
 		public override void Input(ComponentPort port, Resource resource)
@@ -117,6 +116,12 @@ namespace MarbleDrop.Puzzles.Components.WorldMap
 		void LoadPuzzle()
 		{
 			var newPuzzle = Puzzle.Load(game, FileName);
+			puzzle.display.Mount(newPuzzle);
+		}
+
+		void NewPuzzle()
+		{
+			var newPuzzle = new Puzzle(game);
 			puzzle.display.Mount(newPuzzle);
 		}
 
@@ -160,9 +165,14 @@ namespace MarbleDrop.Puzzles.Components.WorldMap
 				ImGui.EndPopup();
 			}
 
-			if (ImGui.Button("Edit..."))
+			if (IsValid && ImGui.Button("Edit..."))
 			{
 				LoadPuzzle();
+			}
+
+			if(ImGui.Button("New..."))
+			{
+				NewPuzzle();
 			}
 		}
 	}

@@ -175,6 +175,12 @@ namespace MarbleDrop
 			/* draw render target to screen (scaled up by nearest neighbour by screenScale) */
 			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);
 			spriteBatch.Draw(renderTarget, new Rectangle(0, 0, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight), Color.White);
+
+			var mousePosition = inputManager.RawMousePosition;
+
+			// todo: add a proper cursor
+			spriteBatch.Draw(Globals.DebugTexture, new Rectangle((int)mousePosition.X - 1, (int)mousePosition.Y - 1, (int)(4 * screenScale) + 2, (int)(4 * screenScale) + 2), Color.Black) ;
+			spriteBatch.Draw(Globals.DebugTexture, new Rectangle((int)mousePosition.X, (int)mousePosition.Y, (int)(4 * screenScale), (int)(4 * screenScale)), Color.White);
 			spriteBatch.End();
 
 			base.Draw(gameTime);

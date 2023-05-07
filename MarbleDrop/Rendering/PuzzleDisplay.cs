@@ -33,6 +33,8 @@ namespace MarbleDrop.Rendering
 
 		public bool IsEdgePanEnabled = false;
 
+		public float LoadingTimer = 0f;
+
 		public Rectangle ScreenBounds {
 			get
 			{
@@ -96,6 +98,7 @@ namespace MarbleDrop.Rendering
 			this.puzzle = puzzle;
 			puzzle.display = this;
 			Editor = new PuzzleEditorContext(this);
+			LoadingTimer = 1f;
 		}
 
 		public void ZoomIn()
@@ -165,6 +168,12 @@ namespace MarbleDrop.Rendering
 
 		public void Update(GameTime gameTime)
 		{
+			if(LoadingTimer > 0f)
+			{
+				LoadingTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+				return;
+			}
+
 			var cameraVelocity = new Vector2(0, 0);
 
 			if (IsMouseWithin())
@@ -243,16 +252,39 @@ namespace MarbleDrop.Rendering
 				grid.TryAddCharacter(character);
 			}
 
-			Editor.DrawCharacters(grid);
-
-			if(CameraZoom != 1f)
+			if (LoadingTimer > 0f)
 			{
-				var text = $" {CameraZoom.ToString()}x ";
-				var textIndices = BitmapFont.ConvertStringToIndices(text);
-				for (var x = 0; x < text.Length; x++) {
-					var position = new Vector2(Bounds.Right - text.Length + x, Bounds.Bottom);
-					var character = new GridCharacter(grid, textIndices[x], position, grid.Palette.Get("white"), grid.Palette.Get("darkgrey"), Priority.Component);
+				var text = "Loading...";
+				var x = (int)Math.Floor((Bounds.Width / 2f) - (text.Length / 2f));
+				var y = (int)Math.Floor(Bounds.Height / 2f);
+
+				var characterIndices = BitmapFont.ConvertStringToIndices(text);
+				var foregroundColor = grid.Palette.Get("white");
+				var backgroundColor = grid.Palette.Get("black");
+
+
+				foreach (var index in characterIndices)
+				{
+					var character = new GridCharacter(grid, index, Bounds.Location.ToVector2() + new Vector2(x, y), foregroundColor, backgroundColor, Priority.Component);
+					x++;
+
 					grid.TryAddCharacter(character);
+				}
+			}
+			else
+			{
+				if(Editor.Enabled) Editor.DrawCharacters(grid);
+
+				if (CameraZoom != 1f)
+				{
+					var text = $" {CameraZoom.ToString()}x ";
+					var textIndices = BitmapFont.ConvertStringToIndices(text);
+					for (var x = 0; x < text.Length; x++)
+					{
+						var position = new Vector2(Bounds.Right - text.Length + x, Bounds.Bottom);
+						var character = new GridCharacter(grid, textIndices[x], position, grid.Palette.Get("white"), grid.Palette.Get("darkgrey"), Priority.Component);
+						grid.TryAddCharacter(character);
+					}
 				}
 			}
 		}
@@ -278,15 +310,22 @@ namespace MarbleDrop.Rendering
 
 		public void Draw(SpriteBatch spriteBatch)
 		{
+			if (LoadingTimer > 0f) return;
+
 			spriteBatch.Draw(RenderTarget, ScreenBounds, Color.White);
 		}
+
 		public void DrawEditor(SpriteBatch spriteBatch)
 		{
+			if (LoadingTimer > 0f) return;
+
 			Editor.Draw(spriteBatch);
 		}
 
 		public void DrawEditorUI()
 		{
+			if (LoadingTimer > 0f) return;
+
 			Editor.DrawUI();
 		}
 	}

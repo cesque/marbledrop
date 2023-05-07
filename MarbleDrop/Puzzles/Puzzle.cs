@@ -40,6 +40,8 @@ namespace MarbleDrop.Puzzles
 			this.game = game;
 			this.grid = new Grid(game, 80, 40);
 
+			Name = new Guid().ToString();
+
 			Components = new List<PuzzleComponent>();
 			componentsReadyForDeletion = new List<PuzzleComponent>();
 
