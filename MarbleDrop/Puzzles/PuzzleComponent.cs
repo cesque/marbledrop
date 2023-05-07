@@ -108,7 +108,11 @@ namespace MarbleDrop.Puzzles
 					if (component == this) continue;
 					foreach (var other in component.Outputs)
 					{
-						if (port.IsConnected || port.ResourceType != other.ResourceType) continue;
+						if (port.IsConnected || port.ResourceType != other.ResourceType)
+						{
+							Console.WriteLine(port.IsConnected ? "couldn't automatically connect due to: port is already connected" : "couldn't automatically connect due to: port resource type mismatch");
+						}
+
 						if (port.GridPosition == other.GridPosition)
 						{
 							port.Connect(other);
@@ -124,7 +128,11 @@ namespace MarbleDrop.Puzzles
 					if (component == this) continue;
 					foreach (var other in component.Inputs)
 					{
-						if (port.IsConnected || port.ResourceType != other.ResourceType) continue;
+						if (port.IsConnected || port.ResourceType != other.ResourceType)
+						{
+							Console.WriteLine(port.IsConnected ? "couldn't automatically connect due to: port is already connected" : "couldn't automatically connect due to: port resource type mismatch");
+						}
+
 						if (port.GridPosition == other.GridPosition)
 						{
 							port.Connect(other);

@@ -164,6 +164,7 @@ namespace MarbleDrop.Puzzles.Components
 				//ConnectTo(to);
 			}
 
+			ResourceType = from.ResourceType;
 			var resourceTypeName = ResourceType.ToString().ToLower();
 			var inputPort = new ComponentPort(this, PortType.INPUT, ResourceType, fromPosition, resourceTypeName + "/input");
 			var outputPort = new ComponentPort(this, PortType.OUTPUT, ResourceType, toPosition, resourceTypeName + "/output");
