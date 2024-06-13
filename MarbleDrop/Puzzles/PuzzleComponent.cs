@@ -122,6 +122,7 @@ namespace MarbleDrop.Puzzles
 						if (port.IsConnected || port.ResourceType != other.ResourceType)
 						{
 							Console.WriteLine(port.IsConnected ? "couldn't automatically connect due to: port is already connected" : "couldn't automatically connect due to: port resource type mismatch");
+							continue;
 						}
 
 						if (port.GridPosition == other.GridPosition)
@@ -142,6 +143,7 @@ namespace MarbleDrop.Puzzles
 						if (port.IsConnected || port.ResourceType != other.ResourceType)
 						{
 							Console.WriteLine(port.IsConnected ? "couldn't automatically connect due to: port is already connected" : "couldn't automatically connect due to: port resource type mismatch");
+							continue;
 						}
 
 						if (port.GridPosition == other.GridPosition)
