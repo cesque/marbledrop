@@ -20,14 +20,16 @@ namespace MarbleDrop.Puzzles.Components
 		public PlayerMarbleSpawnerComponent(Puzzle puzzle, string id) : base(puzzle, id)
 		{
 			Position = new Vector2(4, 4);
-
-			Outputs.Add(new ComponentPort(this, PortType.OUTPUT, ResourceType.MARBLE, new Vector2(4, 2), "marble/output"));
 		}
 
 		public PlayerMarbleSpawnerComponent(Puzzle puzzle) : this(puzzle, new Guid().ToString()) { }
 
 		public override void Initialise()
 		{
+			Inputs.Clear();
+			Outputs.Clear();
+			Outputs.Add(new ComponentPort(this, PortType.OUTPUT, ResourceType.MARBLE, new Vector2(4, 2), "marble/output"));
+
 			UpdateLayout();
 		}
 

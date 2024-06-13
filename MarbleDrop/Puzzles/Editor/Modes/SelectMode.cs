@@ -88,7 +88,11 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 					var componentWithPosition = (PuzzleComponentWithPosition)component;
 
 					// this variable helps us not check hover state on every frame for every component, which i think would not be great perf wise
-					var shouldCheckHover = puzzle.game.inputManager.IsLeftMouseButtonPressed() || puzzle.game.inputManager.IsLeftMouseButtonReleased() || puzzle.game.inputManager.IsRightMouseButtonReleased();
+					var shouldCheckHover = puzzle.game.inputManager.IsLeftMouseButtonPressed()
+						|| puzzle.game.inputManager.IsLeftMouseButtonReleased()
+						|| puzzle.game.inputManager.IsRightMouseButtonReleased()
+						|| puzzle.game.inputManager.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.R);
+
 					if (shouldCheckHover && !ImGui.GetIO().WantCaptureMouse && componentWithPosition.IsMouseOver())
 					{
 						if (puzzle.game.inputManager.IsLeftMouseButtonPressed())
@@ -107,6 +111,10 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 						else if (puzzle.game.inputManager.IsLeftMouseButtonReleased())
 						{
 							mouseDownPosition = null;
+						}
+						else if (puzzle.game.inputManager.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.R))
+						{
+							componentWithPosition.Rotate(1);
 						}
 					}
 				}
@@ -331,23 +339,52 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 				var max = circleSize;
 				var step = 1f;
 
-				foreach (var port in component.Inputs)
+				//foreach (var port in component.Inputs)
+				//{
+				//	var color = Color.GreenYellow * (port.IsConnected ? 1f : 0.5f);
+
+				//	for (var i = min; i <= max; i += step)
+				//	{
+				//		var position = component.puzzle.display.ConvertDisplaySpaceToScreenSpace(
+				//			component.puzzle.ConvertPuzzleSpaceToDisplaySpace(
+				//				component.puzzle.grid.ConvertGridSpaceToPuzzleSpace(port.GridPosition)
+				//			)
+				//		);
+
+				//		MonoGame.Primitives2D.DrawCircle(spriteBatch, position + (gridSize / 2f), i, 16, color);
+				//	}
+				//}
+
+				//foreach (var port in component.Outputs)
+				//{
+				//	var color = Color.CornflowerBlue * (port.IsConnected ? 1f : 0.5f);
+
+				//	for (var i = min; i <= max; i += step)
+				//	{
+				//		var position = component.puzzle.display.ConvertDisplaySpaceToScreenSpace(
+				//			component.puzzle.ConvertPuzzleSpaceToDisplaySpace(
+				//				component.puzzle.grid.ConvertGridSpaceToPuzzleSpace(port.GridPosition)
+				//			)
+				//		);
+
+				//		MonoGame.Primitives2D.DrawCircle(spriteBatch, position + (gridSize / 2f), i, 16, color);
+				//	}
+				//}
+
+				foreach (var port in component.Ports)
 				{
-					var color = Color.GreenYellow * (port.IsConnected ? 1f : 0.5f);
+					var baseColor = port.Type == PortType.INPUT ? Color.GreenYellow : Color.CornflowerBlue;
+					var color = baseColor * (port.IsConnected ? 1f : 0.5f);
 
 					for (var i = min; i <= max; i += step)
 					{
-						MonoGame.Primitives2D.DrawCircle(spriteBatch, screenBounds.Location.ToVector2() + (port.Position * gridSize) + (gridSize / 2f), i, 16, color);
-					}
-				}
+						var position = component.puzzle.display.ConvertDisplaySpaceToScreenSpace(
+							component.puzzle.ConvertPuzzleSpaceToDisplaySpace(
+								component.puzzle.grid.ConvertGridSpaceToPuzzleSpace(port.GridPosition)
+							)
+						);
 
-				foreach (var port in component.Outputs)
-				{
-					var color = Color.CornflowerBlue * (port.IsConnected ? 1f : 0.5f);
-
-					for (var i = min; i <= max; i += step)
-					{
-						MonoGame.Primitives2D.DrawCircle(spriteBatch, screenBounds.Location.ToVector2() + (port.Position * gridSize) + (gridSize / 2f), i, 16, color);
+						MonoGame.Primitives2D.DrawCircle(spriteBatch, position + (gridSize / 2f), i, 16, color);
 					}
 				}
 			}
@@ -386,7 +423,13 @@ namespace MarbleDrop.Puzzles.Editor.Modes
 				ImGui.TableNextColumn();
 				ImGui.Text("Delete");
 				ImGui.TableNextColumn();
-				ImGui.Text("RMB");
+				ImGui.Text("Ctrl+LMB");
+
+				ImGui.TableNextRow();
+				ImGui.TableNextColumn();
+				ImGui.Text("Rotate");
+				ImGui.TableNextColumn();
+				ImGui.Text("R");
 
 				ImGui.TableNextRow();
 				ImGui.TableNextColumn();

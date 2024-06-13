@@ -17,6 +17,17 @@ namespace MarbleDrop.Rendering
 		public int CharacterWidth;
 		public int CharacterHeight;
 
+		private static Dictionary<int, int> rotationMap = new()
+		{
+			{ 131, 148 }, // │ -> ─
+			{ 148, 131 }, // ─ -> │
+
+			{ 170, 143 }, // ┌ -> ┐
+			{ 143, 169 }, // ┐ -> ┘
+			{ 169, 144 }, // ┘ -> └
+			{ 144, 170 }, // └ -> ┌
+		};
+
 		public BitmapFont(Game1 game, string assetName, int characterWidth, int characterHeight)
 		{
 			this.game = game;
@@ -49,6 +60,25 @@ namespace MarbleDrop.Rendering
 		public static List<int> ConvertStringToIndices(string s)
 		{
 			return s.ToCharArray().Select(c => (int)c).ToList();
+		}
+
+		public static int Rotate(int index, int quarterTurns)
+		{
+			var iterations = quarterTurns % 4;
+
+			var value = index;
+			for(var i = 0; i < iterations; i++)
+			{
+				if(rotationMap.TryGetValue(value, out int nextValue))
+				{
+					value = nextValue;
+				} else
+				{
+					return value;
+				}
+			}
+
+			return value;
 		}
 	}
 }

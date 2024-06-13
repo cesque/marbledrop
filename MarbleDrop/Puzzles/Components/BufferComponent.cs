@@ -18,6 +18,13 @@ namespace MarbleDrop.Puzzles.Components
 		public Queue<Marble> Marbles;
 		public Queue<Marble> OutputQueue;
 
+		Vector2 CenterOffset {
+			get
+			{
+				return new Vector2(2, 1);
+			}
+		}
+
 		float outputTimer = 0f;
 		bool isOutputting = false;
 
@@ -40,11 +47,20 @@ namespace MarbleDrop.Puzzles.Components
 
 		public override void Initialise()
 		{
-			Inputs.Add(new ComponentPort(this, PortType.INPUT, ResourceType.MARBLE, new Vector2(-1, 1), "marble/input"));
-			Outputs.Add(new ComponentPort(this, PortType.OUTPUT, ResourceType.MARBLE, new Vector2(5, 1), "marble/output"));
+			Inputs.Clear();
+			Outputs.Clear();
 
-			Outputs.Add(new ComponentPort(this, PortType.OUTPUT, ResourceType.SPARK, new Vector2(2, -1), "spark/top"));
-			Outputs.Add(new ComponentPort(this, PortType.OUTPUT, ResourceType.SPARK, new Vector2(2, 3), "spark/bottom"));
+			//Inputs.Add(new ComponentPort(this, PortType.INPUT, ResourceType.MARBLE, Globals.RotateAround(new Vector2(-1, 1), CenterOffset - Vector2.UnitX, Rotation), "marble/input"));
+			//Outputs.Add(new ComponentPort(this, PortType.OUTPUT, ResourceType.MARBLE, Globals.RotateAround(new Vector2(5, 1), CenterOffset - Vector2.UnitX, Rotation), "marble/output"));
+
+			//Outputs.Add(new ComponentPort(this, PortType.OUTPUT, ResourceType.SPARK, Globals.RotateAround(new Vector2(2, -1), CenterOffset - Vector2.UnitX, Rotation), "spark/top"));
+			//Outputs.Add(new ComponentPort(this, PortType.OUTPUT, ResourceType.SPARK, Globals.RotateAround(new Vector2(2, 3), CenterOffset - Vector2.UnitX, Rotation), "spark/bottom"));
+
+			Inputs.Add(new ComponentPort(this, PortType.INPUT, ResourceType.MARBLE, Globals.RotateAround(new Vector2(-3, 0), Vector2.Zero, Rotation) + CenterOffset, "marble/input"));
+			Outputs.Add(new ComponentPort(this, PortType.OUTPUT, ResourceType.MARBLE, Globals.RotateAround(new Vector2(3, 0), Vector2.Zero, Rotation) + CenterOffset, "marble/output"));
+
+			Outputs.Add(new ComponentPort(this, PortType.OUTPUT, ResourceType.SPARK, Globals.RotateAround(new Vector2(0, -2), Vector2.Zero, Rotation) + CenterOffset, "spark/top"));
+			Outputs.Add(new ComponentPort(this, PortType.OUTPUT, ResourceType.SPARK, Globals.RotateAround(new Vector2(0, 2), Vector2.Zero, Rotation) + CenterOffset, "spark/bottom"));
 		}
 
 		public override void Update(GameTime gameTime)
@@ -111,6 +127,25 @@ namespace MarbleDrop.Puzzles.Components
 					characters.AddRange(marbleCharacters);
 				}
 			}
+
+			foreach (var character in characters)
+			{
+				character.RotateAround(Position + CenterOffset, Rotation);
+			}
+
+			//foreach (var port in Ports)
+			//{
+			//	characters.Add(
+			//		new GridCharacter(
+			//			grid,
+			//			188,
+			//			Position + port.Position,
+			//			port.Type == PortType.INPUT ? grid.Palette.Get("green") : grid.Palette.Get("blue"),
+			//			backgroundColor,
+			//			Priority.Component
+			//		)
+			//	);
+			//}
 
 			return characters;
 		}

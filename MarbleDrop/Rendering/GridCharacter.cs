@@ -39,6 +39,11 @@ namespace MarbleDrop.Rendering
 			BackgroundColor = backgroundColor;
 		}
 
+		public void RotateAround(Vector2 pivot, int quarterTurns)
+		{
+			Position = Globals.RotateAround(Position, pivot, quarterTurns);
+			CharacterIndex = BitmapFont.Rotate(CharacterIndex, quarterTurns);
+		}
 
 		public void Draw(SpriteBatch spriteBatch)
 		{

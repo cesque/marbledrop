@@ -46,7 +46,18 @@ namespace MarbleDrop.Puzzles
 
 		public PuzzleComponent(Puzzle puzzle) : this(puzzle, new Guid().ToString()) { }
 
-		abstract public void Initialise();
+		virtual public void Initialise()
+		{
+			foreach (ComponentPort port in Inputs)
+			{
+				port.Disconnect();
+			}
+
+			foreach (ComponentPort port in Outputs)
+			{
+				port.Disconnect();
+			}
+		}
 
 		abstract public void Update(GameTime gameTime);
 

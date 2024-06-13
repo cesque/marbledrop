@@ -28,6 +28,17 @@ namespace MarbleDrop.Puzzles
 			}
 		}
 
+		private int _rotation;
+		public int Rotation
+		{
+			get => _rotation;
+			set
+			{
+				_rotation = (value % 4);
+				Initialise();
+			}
+		}
+
 		public PuzzleComponentWithPosition(Puzzle puzzle) : this(puzzle, Vector2.Zero) { }
 
 		public PuzzleComponentWithPosition(Puzzle puzzle, string id) : this(puzzle, id, Vector2.Zero) { }
@@ -36,7 +47,7 @@ namespace MarbleDrop.Puzzles
 
 		public PuzzleComponentWithPosition(Puzzle puzzle, string id, Vector2 position) : base(puzzle, id)
 		{
-			Vector2 Position = position;
+			Position = position;
 		}
 
 		public Rectangle GetBounds()
@@ -76,6 +87,11 @@ namespace MarbleDrop.Puzzles
 		internal virtual void PositionChanged(Vector2 oldPosition, Vector2 newPosition)
 		{
 			this.AutomaticallyConnectPorts();
+		}
+
+		public void Rotate(int quarterTurns)
+		{
+			Rotation += quarterTurns;
 		}
 
 		public override bool IsMouseOver()

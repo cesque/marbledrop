@@ -36,6 +36,9 @@ namespace MarbleDrop.Puzzles.Components
 
 		public override void Initialise()
 		{
+			Inputs.Clear();
+			Outputs.Clear();
+
 			Inputs.Add(new ComponentPort(this, PortType.INPUT, ResourceType.MARBLE, new Vector2(-1, 1), "marble/input"));
 			Outputs.Add(new ComponentPort(this, PortType.OUTPUT, ResourceType.MARBLE, new Vector2(0, -1), "marble/top"));
 			Outputs.Add(new ComponentPort(this, PortType.OUTPUT, ResourceType.MARBLE, new Vector2(0, 3), "marble/bottom"));
@@ -47,7 +50,7 @@ namespace MarbleDrop.Puzzles.Components
 
 		void UpdateLayouts()
 		{
-			layouts = new List<List<GridCharacter>>
+			var newLayouts = new List<List<GridCharacter>>
 			{
 				new List<GridCharacter>
 				{
@@ -73,6 +76,8 @@ namespace MarbleDrop.Puzzles.Components
 					new GridCharacter(grid, 25, Position + new Vector2(1, 2), grid.Palette.Get("blue"), grid.Palette.Get("darkblue"), Priority.Component),
 				}
 			};
+
+			layouts = newLayouts;
 		}
 
 		internal override void PositionChanged(Vector2 oldPosition, Vector2 newPosition)
